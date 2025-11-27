@@ -1,0 +1,5 @@
+{
+  "name": "auto CRM",
+  "description": "A Coinbase-styled SaaS CRM for SMEs featuring AI automation, RFM analysis, and Multi-tenant architecture.",
+  "requestFramePermissions": []
+}
