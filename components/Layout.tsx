@@ -1,6 +1,6 @@
 import React from 'react';
 import { ViewState } from '../types';
-import { LayoutDashboard, Users, CheckSquare, Shield, Settings, Menu, Bell, Search } from 'lucide-react';
+import { LayoutDashboard, Users, CheckSquare, Shield, Settings, Menu, Bell, Search, Command, Package, Receipt, Workflow } from 'lucide-react';
 
 interface LayoutProps {
   currentView: ViewState;
@@ -8,24 +8,23 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-const NavItem = ({ 
-  icon: Icon, 
-  label, 
-  isActive, 
-  onClick 
-}: { 
-  icon: any, 
-  label: string, 
-  isActive: boolean, 
-  onClick: () => void 
+const NavItem = ({
+  icon: Icon,
+  label,
+  isActive,
+  onClick
+}: {
+  icon: any,
+  label: string,
+  isActive: boolean,
+  onClick: () => void
 }) => (
   <button
     onClick={onClick}
-    className={`flex items-center w-full gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors ${
-      isActive 
-        ? 'bg-primary/10 text-primary' 
-        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-    }`}
+    className={`flex items-center w-full gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-colors ${isActive
+      ? 'bg-primary/10 text-primary'
+      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+      }`}
   >
     <Icon className={`w-5 h-5 ${isActive ? 'text-primary' : 'text-gray-500'}`} />
     {label}
@@ -38,61 +37,82 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onViewChange, child
       {/* Sidebar */}
       <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 hidden md:flex flex-col">
         <div className="flex items-center h-16 px-6 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">a</span>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-sm">
+              <Command className="text-white w-6 h-6" />
             </div>
-            <span className="text-xl font-bold text-gray-900 tracking-tight">auto CRM</span>
+            <div className="flex flex-col -space-y-0.5">
+              <span className="text-xl font-bold text-gray-900 tracking-tight">SARN</span>
+              <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Auto CRM</span>
+            </div>
           </div>
         </div>
 
         <nav className="flex-1 p-4 space-y-1">
-          <NavItem 
-            icon={LayoutDashboard} 
-            label="Dashboard" 
-            isActive={currentView === 'dashboard'} 
-            onClick={() => onViewChange('dashboard')} 
+          <NavItem
+            icon={LayoutDashboard}
+            label="Dashboard"
+            isActive={currentView === 'dashboard'}
+            onClick={() => onViewChange('dashboard')}
           />
-          <NavItem 
-            icon={Users} 
-            label="Customers" 
-            isActive={currentView === 'customers'} 
-            onClick={() => onViewChange('customers')} 
+          <NavItem
+            icon={Users}
+            label="Customers"
+            isActive={currentView === 'customers'}
+            onClick={() => onViewChange('customers')}
           />
-          <NavItem 
-            icon={CheckSquare} 
-            label="Tasks & Auto" 
-            isActive={currentView === 'tasks'} 
-            onClick={() => onViewChange('tasks')} 
+          <NavItem
+            icon={Package}
+            label="Products"
+            isActive={currentView === 'products'}
+            onClick={() => onViewChange('products')}
           />
-          
+          <NavItem
+            icon={Receipt}
+            label="Transactions"
+            isActive={currentView === 'transactions'}
+            onClick={() => onViewChange('transactions')}
+          />
+          <NavItem
+            icon={CheckSquare}
+            label="Tasks & Auto"
+            isActive={currentView === 'tasks'}
+            onClick={() => onViewChange('tasks')}
+          />
+          <NavItem
+            icon={Workflow}
+            label="Automation"
+            isActive={currentView === 'automation'}
+            onClick={() => onViewChange('automation')}
+          />
+
           <div className="pt-8 pb-2">
-             <span className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Administration</span>
+            <span className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Administration</span>
           </div>
-          
-          <NavItem 
-            icon={Shield} 
-            label="Super Admin" 
-            isActive={currentView === 'superadmin'} 
-            onClick={() => onViewChange('superadmin')} 
+
+          <NavItem
+            icon={Shield}
+            label="Super Admin"
+            isActive={currentView === 'superadmin'}
+            onClick={() => onViewChange('superadmin')}
           />
-          <NavItem 
-            icon={Settings} 
-            label="Settings" 
-            isActive={currentView === 'settings'} 
-            onClick={() => onViewChange('settings')} 
+          <NavItem
+            icon={Settings}
+            label="Settings"
+            isActive={currentView === 'settings'}
+            onClick={() => onViewChange('settings')}
           />
         </nav>
 
         <div className="p-4 border-t border-gray-100">
           <div className="flex items-center gap-3 p-2 rounded-xl bg-gray-50">
-             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
-               JS
-             </div>
-             <div className="flex-1 min-w-0">
-               <p className="text-sm font-medium text-gray-900 truncate">John Smith</p>
-               <p className="text-xs text-gray-500 truncate">Siam Coffee Co.</p>
-             </div>
+            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+              JS
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-gray-900 truncate">John Smith</p>
+              <p className="text-xs text-gray-500 truncate">Siam Coffee Co.</p>
+            </div>
           </div>
         </div>
       </aside>
@@ -105,13 +125,13 @@ export const Layout: React.FC<LayoutProps> = ({ currentView, onViewChange, child
             <div className="md:hidden">
               <Menu className="w-6 h-6 text-gray-600" />
             </div>
-            
+
             <div className="hidden md:flex flex-1 max-w-lg ml-4">
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input 
-                  type="text" 
-                  placeholder="Search customers, tasks, or settings..." 
+                <input
+                  type="text"
+                  placeholder="Search customers, tasks, or settings..."
                   className="w-full h-10 pl-10 pr-4 text-sm bg-gray-100 border-none rounded-full focus:bg-white focus:ring-2 focus:ring-primary/20 transition-all"
                 />
               </div>

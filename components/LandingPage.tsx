@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from './ui';
-import { Menu, X, Check, ArrowRight, Database, Zap, MessageCircle, Users, BarChart, Lock, ChevronRight } from 'lucide-react';
+import { Menu, X, Check, ArrowRight, Database, Zap, MessageCircle, Users, BarChart, Lock, ChevronRight, Command } from 'lucide-react';
 
 interface LandingPageProps {
   onLoginClick: () => void;
@@ -14,11 +14,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       {/* Navbar */}
       <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">a</span>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-sm">
+              <Command className="text-white w-6 h-6" />
             </div>
-            <span className="text-xl font-bold text-primary tracking-tight">auto CRM</span>
+            <div className="flex flex-col -space-y-0.5">
+              <span className="text-xl font-bold text-slate-900 tracking-tight">SARN</span>
+              <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Auto CRM</span>
+            </div>
           </div>
 
           {/* Desktop Menu */}
@@ -57,7 +60,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
         <div className="max-w-4xl mx-auto text-center space-y-8 animate-in slide-in-from-bottom-8 duration-700 fade-in">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 leading-tight">
             เปลี่ยนลูกค้าขาจร <span className="text-primary">ให้เป็นขาประจำ</span><br />
-            ด้วยระบบ Auto CRM
+            ด้วยระบบ SARN
           </h1>
           <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
             ระบบดูแลลูกค้าสำหรับ SMEs ที่ใช้งานง่ายที่สุด ไม่ต้องเก่ง Tech ก็ทำยอดขายเพิ่มได้ด้วย Automation และ AI ผู้ช่วยอัจฉริยะ
@@ -70,28 +73,28 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               ดูวิดีโอแนะนำ <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
-          
+
           {/* Visual Placeholder */}
           <div className="mt-16 relative mx-auto max-w-5xl rounded-2xl bg-slate-50 border border-slate-200 shadow-2xl overflow-hidden aspect-[16/9] flex items-center justify-center group">
-             <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 to-white opacity-50"></div>
-             {/* Abstract UI representation */}
-             <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 p-12 w-full max-w-4xl opacity-80 group-hover:scale-105 transition-transform duration-700">
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center"><Users className="text-primary" /></div>
-                  <div className="h-2 w-24 bg-slate-100 rounded"></div>
-                  <div className="h-2 w-32 bg-slate-100 rounded"></div>
-                </div>
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4 mt-12">
-                  <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"><Zap className="text-green-600" /></div>
-                  <div className="h-2 w-24 bg-slate-100 rounded"></div>
-                  <div className="h-2 w-32 bg-slate-100 rounded"></div>
-                </div>
-                <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4">
-                   <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center"><MessageCircle className="text-purple-600" /></div>
-                   <div className="h-2 w-24 bg-slate-100 rounded"></div>
-                   <div className="h-2 w-32 bg-slate-100 rounded"></div>
-                </div>
-             </div>
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 to-white opacity-50"></div>
+            {/* Abstract UI representation */}
+            <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 p-12 w-full max-w-4xl opacity-80 group-hover:scale-105 transition-transform duration-700">
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center"><Users className="text-primary" /></div>
+                <div className="h-2 w-24 bg-slate-100 rounded"></div>
+                <div className="h-2 w-32 bg-slate-100 rounded"></div>
+              </div>
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4 mt-12">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"><Zap className="text-green-600" /></div>
+                <div className="h-2 w-24 bg-slate-100 rounded"></div>
+                <div className="h-2 w-32 bg-slate-100 rounded"></div>
+              </div>
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4">
+                <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center"><MessageCircle className="text-purple-600" /></div>
+                <div className="h-2 w-24 bg-slate-100 rounded"></div>
+                <div className="h-2 w-32 bg-slate-100 rounded"></div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -128,7 +131,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       {/* Features Section */}
       <section id="features" className="py-24 px-6 overflow-hidden">
         <div className="max-w-7xl mx-auto space-y-24">
-          
+
           {/* Feature 1 */}
           <div className="flex flex-col md:flex-row items-center gap-16">
             <div className="flex-1 space-y-6">
@@ -137,7 +140,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               </div>
               <h2 className="text-3xl md:text-4xl font-bold">นำเข้าลูกค้าเก่าง่ายๆ ในคลิกเดียว</h2>
               <p className="text-lg text-slate-500">
-                มีไฟล์ Excel รายชื่อลูกค้าอยู่แล้ว? อัปโหลดเข้า auto CRM ระบบจะจัดระเบียบและวิเคราะห์ RFM Segmentation (แบ่งกลุ่มลูกค้า เกรด A, B, C) ให้อัตโนมัติทันที
+                มีไฟล์ Excel รายชื่อลูกค้าอยู่แล้ว? อัปโหลดเข้า SARN ระบบจะจัดระเบียบและวิเคราะห์ RFM Segmentation (แบ่งกลุ่มลูกค้า เกรด A, B, C) ให้อัตโนมัติทันที
               </p>
               <ul className="space-y-3">
                 <li className="flex items-center gap-3 text-slate-700">
@@ -151,7 +154,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               </ul>
             </div>
             <div className="flex-1 bg-slate-100 rounded-2xl p-8 aspect-video flex items-center justify-center shadow-inner">
-               <Database className="w-24 h-24 text-slate-300" />
+              <Database className="w-24 h-24 text-slate-300" />
             </div>
           </div>
 
@@ -163,11 +166,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
               </div>
               <h2 className="text-3xl md:text-4xl font-bold">สร้าง Flow อัตโนมัติเหมือนต่อ Lego</h2>
               <p className="text-lg text-slate-500">
-                กำหนดกฎการดูแลลูกค้าได้เอง เช่น "ถ้าซื้อสินค้า A ครบ 3 เดือน -> ให้สร้าง Task โทรหาลูกค้าเพื่อขายไส้กรอง" ช่วยให้ทีมงานทำงานเป็นระบบ ไม่พลาดทุกโอกาสขาย
+                กำหนดกฎการดูแลลูกค้าได้เอง เช่น "ถ้าซื้อสินค้า A ครบ 3 เดือน → ให้สร้าง Task โทรหาลูกค้าเพื่อขายไส้กรอง" ช่วยให้ทีมงานทำงานเป็นระบบ ไม่พลาดทุกโอกาสขาย
               </p>
             </div>
             <div className="flex-1 bg-slate-100 rounded-2xl p-8 aspect-video flex items-center justify-center shadow-inner">
-               <Zap className="w-24 h-24 text-slate-300" />
+              <Zap className="w-24 h-24 text-slate-300" />
             </div>
           </div>
 
@@ -181,7 +184,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
             <h2 className="text-3xl md:text-4xl font-bold mb-4">แพ็กเกจราคาที่คุ้มค่า</h2>
             <p className="text-slate-500">เริ่มต้นใช้งานได้ฟรี ไม่ต้องผูกบัตรเครดิต</p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {/* Starter */}
             <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm flex flex-col">
@@ -263,18 +266,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick }) => {
       {/* Footer */}
       <footer className="bg-white py-12 border-t border-slate-100">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6">
-           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-slate-900 rounded-md flex items-center justify-center">
-              <span className="text-white font-bold text-sm">a</span>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
+              <Command className="text-white w-4 h-4" />
             </div>
-            <span className="font-bold text-slate-900">auto CRM</span>
+            <div className="flex flex-col -space-y-0.5">
+              <span className="font-bold text-slate-900 leading-none">SARN</span>
+              <span className="text-[9px] font-bold text-slate-500 tracking-widest uppercase leading-none">Auto CRM</span>
+            </div>
           </div>
           <div className="flex gap-8 text-sm text-slate-500">
             <a href="#" className="hover:text-primary">เงื่อนไขการใช้งาน</a>
             <a href="#" className="hover:text-primary">นโยบายความเป็นส่วนตัว</a>
             <a href="#" className="hover:text-primary">ช่วยเหลือ</a>
           </div>
-          <p className="text-sm text-slate-400">© 2024 Auto CRM Thailand. All rights reserved.</p>
+          <p className="text-sm text-slate-400">© 2024 SARN Thailand. All rights reserved.</p>
         </div>
       </footer>
     </div>

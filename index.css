@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'LINE Seed Sans TH', sans-serif;
+
+  --color-primary: #0052FF;
+  --color-primary-foreground: #FFFFFF;
+  --color-background: #F4F6F8;
+  --color-card: #FFFFFF;
+  --color-border: #E2E8F0;
+
+  --radius: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-background);
+}
