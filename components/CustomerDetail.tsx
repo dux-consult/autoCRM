@@ -4,12 +4,14 @@ import { transactionService } from '../services/transactionService';
 import { generateMarketingMessage } from '../services/geminiService';
 import { Button, Card, CardContent, CardHeader, CardTitle, Badge } from './ui';
 import { Sparkles, Send, History, User } from 'lucide-react';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 interface CustomerDetailProps {
     customer: Customer;
 }
 
 export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer }) => {
+    const { t } = useLanguage();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [loading, setLoading] = useState(true);
     const [aiMessage, setAiMessage] = useState('');
@@ -34,7 +36,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer }) => {
         try {
             const lastPurchase = customer.last_purchase_date
                 ? new Date(customer.last_purchase_date).toLocaleDateString('th-TH')
-                : 'Never';
+                : t('never');
             const msg = await generateMarketingMessage(customer.first_name, customer.segmentation_status || 'New', lastPurchase);
             setAiMessage(msg);
         } catch (err) {
@@ -50,28 +52,28 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer }) => {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <User className="w-5 h-5" /> Customer Profile
+                            <User className="w-5 h-5" /> {t('customerProfile')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex justify-between">
-                            <span className="text-gray-500">Name:</span>
+                            <span className="text-gray-500">{t('name')}:</span>
                             <span className="font-medium">{customer.first_name} {customer.last_name}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-gray-500">Email:</span>
+                            <span className="text-gray-500">{t('emailLabel')}:</span>
                             <span className="font-medium">{customer.email}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-gray-500">Phone:</span>
+                            <span className="text-gray-500">{t('phoneLabel')}:</span>
                             <span className="font-medium">{customer.phone}</span>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-gray-500">Segment:</span>
+                            <span className="text-gray-500">{t('segmentLabel')}</span>
                             <Badge variant="outline">{customer.segmentation_status || 'N/A'}</Badge>
                         </div>
                         <div className="flex justify-between">
-                            <span className="text-gray-500">Total Spend:</span>
+                            <span className="text-gray-500">{t('totalSpendLabel')}</span>
                             <span className="font-bold text-primary">฿{customer.total_spend?.toLocaleString()}</span>
                         </div>
                     </CardContent>
@@ -80,12 +82,12 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer }) => {
                 <Card className="bg-gradient-to-br from-purple-50 to-white border-purple-100">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-purple-900">
-                            <Sparkles className="w-5 h-5 text-purple-600" /> AI Marketing Assistant
+                            <Sparkles className="w-5 h-5 text-purple-600" /> {t('aiMarketingAssistant')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <p className="text-sm text-gray-600">
-                            Generate a personalized marketing message for {customer.first_name} based on their purchase history and segment.
+                            {t('aiMarketingDesc').replace('{name}', customer.first_name)}
                         </p>
 
                         {!aiMessage ? (
@@ -94,7 +96,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer }) => {
                                 disabled={generating}
                                 className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                             >
-                                {generating ? 'Generating...' : 'Generate Message'}
+                                {generating ? t('generating') : t('generateMessage')}
                             </Button>
                         ) : (
                             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2">
@@ -103,11 +105,11 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer }) => {
                                     <div className="absolute -bottom-2 -right-2 w-4 h-4 bg-white border-b border-r border-purple-200 transform rotate-45"></div>
                                 </div>
                                 <div className="flex gap-2">
-                                    <Button size="sm" className="flex-1 gap-2" onClick={() => alert('Sent (Mock)!')}>
-                                        <Send className="w-4 h-4" /> Send SMS
+                                    <Button size="sm" className="flex-1 gap-2" onClick={() => alert(t('sentMock'))}>
+                                        <Send className="w-4 h-4" /> {t('sendSms')}
                                     </Button>
                                     <Button size="sm" variant="outline" onClick={() => setAiMessage('')}>
-                                        Regenerate
+                                        {t('regenerate')}
                                     </Button>
                                 </div>
                             </div>
@@ -119,14 +121,14 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer }) => {
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <History className="w-5 h-5" /> Transaction History
+                        <History className="w-5 h-5" /> {t('transactionHistory')}
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
                     {loading ? (
-                        <div className="text-center py-4">Loading history...</div>
+                        <div className="text-center py-4">{t('loadingHistory')}</div>
                     ) : transactions.length === 0 ? (
-                        <div className="text-center py-4 text-gray-500">No transactions found.</div>
+                        <div className="text-center py-4 text-gray-500">{t('noTransactionsFound')}</div>
                     ) : (
                         <div className="space-y-4">
                             {transactions.map(t => (
@@ -138,7 +140,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({ customer }) => {
                                             })}
                                         </div>
                                         <div className="text-sm text-gray-500">
-                                            {t.items?.length || 0} items
+                                            {t.items?.length || 0} {t('itemsCount')}
                                         </div>
                                     </div>
                                     <div className="font-bold text-gray-900">

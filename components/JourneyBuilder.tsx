@@ -25,6 +25,7 @@ import { journeyService } from '../services/journeyService';
 import { automationEngine } from '../services/automationEngine';
 import { aiService } from '../services/aiService';
 import { Button, Input, Card, CardContent, CardHeader, CardTitle } from './ui';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 const nodeTypes = {
     trigger: CustomNode,
@@ -48,6 +49,7 @@ interface JourneyBuilderProps {
 }
 
 const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
+    const { t } = useLanguage();
     const reactFlowWrapper = useRef<HTMLDivElement>(null);
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -55,7 +57,7 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
     const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
     // Journey Metadata State
-    const [name, setName] = useState('Untitled Journey');
+    const [name, setName] = useState(t('untitledJourney'));
     const [description, setDescription] = useState('');
     const [isSaving, setIsSaving] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -91,7 +93,7 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
             }
         } catch (error) {
             console.error('Failed to load journey:', error);
-            alert('Failed to load journey');
+            alert(t('failedToLoadJourneys'));
         } finally {
             setIsLoading(false);
         }
@@ -99,7 +101,7 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
 
     const handleSave = async (isPublish: boolean = false) => {
         if (!name.trim()) {
-            alert('Please enter a journey name');
+            alert(t('enterJourneyName'));
             return;
         }
 
@@ -114,13 +116,13 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                 flow.edges,
                 isPublish
             );
-            alert(isPublish ? 'Journey published successfully!' : 'Draft saved successfully!');
+            alert(isPublish ? t('journeyPublished') : t('draftSaved'));
             if (!journeyId) {
                 onBack();
             }
         } catch (error) {
             console.error('Failed to save journey:', error);
-            alert('Failed to save journey');
+            alert(t('failedToSaveJourney'));
         } finally {
             setIsSaving(false);
         }
@@ -128,17 +130,17 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
 
     const handleTestRun = async () => {
         if (!journeyId) {
-            alert('Please save the journey first');
+            alert(t('saveJourneyFirst'));
             return;
         }
 
-        const confirm = window.confirm('This will create a test enrollment for a mock customer. Continue?');
+        const confirm = window.confirm(t('confirmTestRun'));
         if (!confirm) return;
 
         try {
             const startNode = nodes.find(n => n.type === 'trigger');
             if (!startNode) {
-                alert('No trigger node found');
+                alert(t('noTriggerNode'));
                 return;
             }
 
@@ -154,11 +156,11 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                 ...mockCustomer
             });
 
-            alert('Test run started! Check the History tab.');
+            alert(t('testRunStarted'));
             setActiveTab('history');
         } catch (error) {
             console.error('Test run failed:', error);
-            alert('Test run failed');
+            alert(t('testRunFailed'));
         }
     };
 
@@ -181,7 +183,7 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                 setTimeout(() => setViewport({ x: 0, y: 0, zoom: 1 }), 100);
             }
         } catch (error) {
-            alert('Failed to generate flow. Please check your API Key or try again.');
+            alert(t('failedToGenerateFlow'));
         } finally {
             setIsGenerating(false);
         }
@@ -194,7 +196,7 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
             const result = await aiService.simulateJourney({ nodes: flow.nodes, edges: flow.edges });
             setSimulationResult(result);
         } catch (error) {
-            alert('Simulation failed.');
+            alert(t('simulationFailed'));
         } finally {
             setIsSimulating(false);
         }
@@ -270,9 +272,9 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             className="text-lg font-semibold text-gray-900 border-none focus:ring-0 p-0 hover:bg-gray-50 rounded px-2 -ml-2"
-                            placeholder="Journey Name"
+                            placeholder={t('journeyName')}
                         />
-                        <p className="text-sm text-gray-500">Design your customer journey flow</p>
+                        <p className="text-sm text-gray-500">{t('designJourney')}</p>
                     </div>
                 </div>
                 <div className="flex gap-2">
@@ -282,14 +284,14 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                             className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center gap-2 ${activeTab === 'builder' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
                         >
                             <Layout className="w-4 h-4" />
-                            Builder
+                            {t('builder')}
                         </button>
                         <button
                             onClick={() => setActiveTab('history')}
                             className={`px-3 py-1.5 text-sm font-medium rounded-md flex items-center gap-2 ${activeTab === 'history' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
                         >
                             <History className="w-4 h-4" />
-                            History
+                            {t('history')}
                         </button>
                     </div>
 
@@ -302,7 +304,7 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                                 className="border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 hover:text-purple-800"
                             >
                                 <Sparkles className="w-4 h-4 mr-2" />
-                                AI Magic Build
+                                {t('aiMagicBuild')}
                             </Button>
                             <Button
                                 variant="outline"
@@ -311,12 +313,12 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                                 className="border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
                             >
                                 <Bot className="w-4 h-4 mr-2" />
-                                Simulate
+                                {t('simulate')}
                             </Button>
                             <div className="w-px h-8 bg-gray-200 mx-2"></div>
                             <Button variant="outline" size="sm" onClick={handleTestRun} disabled={!journeyId}>
                                 <Play className="w-4 h-4 mr-2" />
-                                Test Run
+                                {t('testRun')}
                             </Button>
                             <button
                                 onClick={() => handleSave(false)}
@@ -324,14 +326,14 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                                 className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center gap-2 disabled:opacity-50"
                             >
                                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                                Save Draft
+                                {t('saveDraft')}
                             </button>
                             <button
                                 onClick={() => handleSave(true)}
                                 disabled={isSaving}
                                 className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90 disabled:opacity-50"
                             >
-                                Publish Journey
+                                {t('publishJourney')}
                             </button>
                         </>
                     )}
@@ -380,7 +382,7 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2 text-purple-700">
                                 <Sparkles className="w-5 h-5" />
-                                AI Magic Flow Generator
+                                {t('magicBuildTitle')}
                             </CardTitle>
                             <button onClick={() => setShowMagicBuild(false)} className="text-gray-400 hover:text-gray-600">
                                 <X className="w-5 h-5" />
@@ -388,16 +390,16 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <p className="text-sm text-gray-600">
-                                Describe the automation flow you want to build. AI will generate the nodes and connections for you.
+                                {t('magicBuildDesc')}
                             </p>
                             <textarea
                                 className="w-full h-32 p-3 border rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                                placeholder="e.g., When a new customer signs up, wait 2 days, then send a welcome email. If they don't open it, send a LINE message."
+                                placeholder={t('magicBuildPlaceholder')}
                                 value={magicPrompt}
                                 onChange={(e) => setMagicPrompt(e.target.value)}
                             />
                             <div className="flex justify-end gap-2">
-                                <Button variant="ghost" onClick={() => setShowMagicBuild(false)}>Cancel</Button>
+                                <Button variant="ghost" onClick={() => setShowMagicBuild(false)}>{t('cancel')}</Button>
                                 <Button
                                     onClick={handleMagicBuild}
                                     disabled={!magicPrompt.trim() || isGenerating}
@@ -406,12 +408,12 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                                     {isGenerating ? (
                                         <>
                                             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                            Generating...
+                                            {t('generating')}
                                         </>
                                     ) : (
                                         <>
                                             <Sparkles className="w-4 h-4 mr-2" />
-                                            Generate Flow
+                                            {t('generateFlow')}
                                         </>
                                     )}
                                 </Button>
@@ -428,7 +430,7 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2 text-blue-700">
                                 <Bot className="w-5 h-5" />
-                                Journey Simulator
+                                {t('simulatorTitle')}
                             </CardTitle>
                             <button onClick={() => setShowSimulator(false)} className="text-gray-400 hover:text-gray-600">
                                 <X className="w-5 h-5" />
@@ -439,10 +441,10 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                                 <div className="text-center py-8">
                                     <Bot className="w-12 h-12 text-blue-200 mx-auto mb-4" />
                                     <p className="text-gray-600 mb-6">
-                                        AI will simulate 100 customers passing through this journey to predict outcomes, sales, and potential risks.
+                                        {t('simulatorDesc')}
                                     </p>
                                     <Button onClick={handleSimulate} className="bg-blue-600 hover:bg-blue-700 text-white">
-                                        Start Simulation
+                                        {t('startSimulation')}
                                     </Button>
                                 </div>
                             )}
@@ -450,7 +452,7 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                             {isSimulating && (
                                 <div className="text-center py-12">
                                     <Loader2 className="w-10 h-10 text-blue-600 animate-spin mx-auto mb-4" />
-                                    <p className="text-gray-600">Simulating 100 customer journeys...</p>
+                                    <p className="text-gray-600">{t('simulating')}</p>
                                 </div>
                             )}
 
@@ -458,22 +460,22 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                                 <div className="space-y-6">
                                     <div className="grid grid-cols-3 gap-4">
                                         <div className="bg-green-50 p-4 rounded-lg border border-green-100 text-center">
-                                            <p className="text-sm text-green-600 font-medium">Est. Total Sales</p>
+                                            <p className="text-sm text-green-600 font-medium">{t('estTotalSales')}</p>
                                             <p className="text-2xl font-bold text-green-700">฿{simulationResult.totalSales.toLocaleString()}</p>
                                         </div>
                                         <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 text-center">
-                                            <p className="text-sm text-blue-600 font-medium">Conversion Rate</p>
+                                            <p className="text-sm text-blue-600 font-medium">{t('conversionRate')}</p>
                                             <p className="text-2xl font-bold text-blue-700">{simulationResult.conversionRate}%</p>
                                         </div>
                                         <div className="bg-red-50 p-4 rounded-lg border border-red-100 text-center">
-                                            <p className="text-sm text-red-600 font-medium">Drop-off Rate</p>
+                                            <p className="text-sm text-red-600 font-medium">{t('dropOffRate')}</p>
                                             <p className="text-2xl font-bold text-red-700">{simulationResult.dropOffRate}%</p>
                                         </div>
                                     </div>
 
                                     {simulationResult.risks && simulationResult.risks.length > 0 && (
                                         <div className="bg-orange-50 p-4 rounded-lg border border-orange-100">
-                                            <h4 className="font-bold text-orange-800 mb-2">Potential Risks</h4>
+                                            <h4 className="font-bold text-orange-800 mb-2">{t('potentialRisks')}</h4>
                                             <ul className="list-disc list-inside text-sm text-orange-700 space-y-1">
                                                 {simulationResult.risks.map((risk: string, i: number) => (
                                                     <li key={i}>{risk}</li>
@@ -483,7 +485,7 @@ const JourneyBuilderContent = ({ journeyId, onBack }: JourneyBuilderProps) => {
                                     )}
 
                                     <div className="flex justify-end">
-                                        <Button variant="outline" onClick={() => setSimulationResult(null)}>Run Again</Button>
+                                        <Button variant="outline" onClick={() => setSimulationResult(null)}>{t('runAgain')}</Button>
                                     </div>
                                 </div>
                             )}

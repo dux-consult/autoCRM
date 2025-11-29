@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle, Button, Input } from '@/components/ui';
 import { MessageSquare, CheckCircle, XCircle, Loader2, ExternalLink, HelpCircle, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { useLanguage } from '@/src/contexts/LanguageContext';
 
 export const IntegrationsPage = () => {
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('line');
 
     // LINE Config State
@@ -127,10 +129,10 @@ export const IntegrationsPage = () => {
             }
 
             setIsConnected(true);
-            alert('LINE integration saved successfully!');
+            alert(t('lineSaved'));
         } catch (error) {
             console.error('Error saving integration:', error);
-            alert('Failed to save integration');
+            alert(t('failedToSaveLine'));
         } finally {
             setSaving(false);
         }
@@ -161,10 +163,10 @@ export const IntegrationsPage = () => {
             }
 
             setEmailConnected(true);
-            alert('Email integration saved successfully!');
+            alert(t('emailSaved'));
         } catch (error) {
             console.error('Error saving email integration:', error);
-            alert('Failed to save email integration');
+            alert(t('failedToSaveEmail'));
         } finally {
             setSaving(false);
         }
@@ -195,10 +197,10 @@ export const IntegrationsPage = () => {
             }
 
             setAiConnected(true);
-            alert('AI integration saved successfully!');
+            alert(t('aiSaved'));
         } catch (error) {
             console.error('Error saving AI integration:', error);
-            alert('Failed to save AI integration');
+            alert(t('failedToSaveAi'));
         } finally {
             setSaving(false);
         }
@@ -206,7 +208,7 @@ export const IntegrationsPage = () => {
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
-        alert('Copied to clipboard!');
+        alert(t('copiedToClipboard'));
     };
 
     const GAS_CODE = `function doPost(e) {
@@ -227,8 +229,8 @@ export const IntegrationsPage = () => {
         <div className="max-w-4xl mx-auto space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Integrations</h2>
-                    <p className="text-gray-500">Connect your CRM with external platforms.</p>
+                    <h2 className="text-2xl font-bold text-gray-900">{t('integrations')}</h2>
+                    <p className="text-gray-500">{t('integrationsDesc')}</p>
                 </div>
             </div>
 
@@ -237,19 +239,19 @@ export const IntegrationsPage = () => {
                     onClick={() => setActiveTab('line')}
                     className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 ${activeTab === 'line' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
                 >
-                    LINE Official Account
+                    {t('lineOA')}
                 </button>
                 <button
                     onClick={() => setActiveTab('email')}
                     className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 ${activeTab === 'email' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
                 >
-                    Email (Gmail)
+                    {t('emailGmail')}
                 </button>
                 <button
                     onClick={() => setActiveTab('ai')}
                     className={`pb-3 px-4 text-sm font-medium transition-colors border-b-2 ${activeTab === 'ai' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
                 >
-                    AI (Gemini)
+                    {t('aiGemini')}
                 </button>
             </div>
 
@@ -261,18 +263,18 @@ export const IntegrationsPage = () => {
                                 <MessageSquare className="w-6 h-6 text-[#00B900]" />
                             </div>
                             <div>
-                                <CardTitle className="text-lg">LINE Official Account</CardTitle>
-                                <p className="text-sm text-gray-500">Send automated messages and notifications via LINE.</p>
+                                <CardTitle className="text-lg">{t('lineOA')}</CardTitle>
+                                <p className="text-sm text-gray-500">{t('lineDesc')}</p>
                             </div>
                         </div>
                         <div>
                             {isConnected ? (
                                 <span className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium border border-green-200">
-                                    <CheckCircle className="w-4 h-4" /> Connected
+                                    <CheckCircle className="w-4 h-4" /> {t('connected')}
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium border border-gray-200">
-                                    <XCircle className="w-4 h-4" /> Not Connected
+                                    <XCircle className="w-4 h-4" /> {t('notConnected')}
                                 </span>
                             )}
                         </div>
@@ -286,7 +288,7 @@ export const IntegrationsPage = () => {
                             >
                                 <div className="flex items-center gap-2 text-blue-800 font-medium">
                                     <HelpCircle className="w-5 h-5" />
-                                    How to connect LINE OA (Step-by-Step)
+                                    {t('howToConnectLine')}
                                 </div>
                                 {showGuide ? <ChevronUp className="w-5 h-5 text-blue-600" /> : <ChevronDown className="w-5 h-5 text-blue-600" />}
                             </button>
@@ -308,7 +310,7 @@ export const IntegrationsPage = () => {
 
                         <div className="grid gap-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Channel Access Token (Long-lived)</label>
+                                <label className="text-sm font-medium text-gray-700">{t('channelAccessToken')}</label>
                                 <Input
                                     type="password"
                                     value={config.channelAccessToken}
@@ -318,7 +320,7 @@ export const IntegrationsPage = () => {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-gray-700">Channel Secret</label>
+                                <label className="text-sm font-medium text-gray-700">{t('channelSecret')}</label>
                                 <Input
                                     type="password"
                                     value={config.channelSecret}
@@ -332,7 +334,7 @@ export const IntegrationsPage = () => {
                         <div className="flex justify-end pt-2">
                             <Button onClick={handleSave} disabled={saving || !config.channelAccessToken}>
                                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                                Save Connection
+                                {t('saveConnection')}
                             </Button>
                         </div>
                     </CardContent>
@@ -347,18 +349,18 @@ export const IntegrationsPage = () => {
                                 <div className="text-red-500 font-bold text-xl">G</div>
                             </div>
                             <div>
-                                <CardTitle className="text-lg">Gmail Integration (Free)</CardTitle>
-                                <p className="text-sm text-gray-500">Send emails using your own Gmail account via Google Apps Script.</p>
+                                <CardTitle className="text-lg">{t('gmailIntegration')}</CardTitle>
+                                <p className="text-sm text-gray-500">{t('gmailDesc')}</p>
                             </div>
                         </div>
                         <div>
                             {emailConnected ? (
                                 <span className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium border border-green-200">
-                                    <CheckCircle className="w-4 h-4" /> Connected
+                                    <CheckCircle className="w-4 h-4" /> {t('connected')}
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium border border-gray-200">
-                                    <XCircle className="w-4 h-4" /> Not Connected
+                                    <XCircle className="w-4 h-4" /> {t('notConnected')}
                                 </span>
                             )}
                         </div>
@@ -372,7 +374,7 @@ export const IntegrationsPage = () => {
                             >
                                 <div className="flex items-center gap-2 text-blue-800 font-medium">
                                     <HelpCircle className="w-5 h-5" />
-                                    How to connect Gmail (Step-by-Step)
+                                    {t('howToConnectGmail')}
                                 </div>
                                 {showEmailGuide ? <ChevronUp className="w-5 h-5 text-blue-600" /> : <ChevronDown className="w-5 h-5 text-blue-600" />}
                             </button>
@@ -413,7 +415,7 @@ export const IntegrationsPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">Script Web App URL</label>
+                            <label className="text-sm font-medium text-gray-700">{t('scriptWebAppUrl')}</label>
                             <Input
                                 type="text"
                                 value={emailConfig.scriptUrl}
@@ -427,7 +429,7 @@ export const IntegrationsPage = () => {
                         <div className="flex justify-end pt-2">
                             <Button onClick={handleSaveEmail} disabled={saving || !emailConfig.scriptUrl}>
                                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                                Save Email Connection
+                                {t('saveEmailConnection')}
                             </Button>
                         </div>
                     </CardContent>
@@ -442,18 +444,18 @@ export const IntegrationsPage = () => {
                                 <Sparkles className="w-6 h-6 text-purple-500" />
                             </div>
                             <div>
-                                <CardTitle className="text-lg">Google Gemini AI</CardTitle>
-                                <p className="text-sm text-gray-500">Unlock AI features: Magic Flow, Content Rewriting, and more.</p>
+                                <CardTitle className="text-lg">{t('googleGeminiAi')}</CardTitle>
+                                <p className="text-sm text-gray-500">{t('geminiDesc')}</p>
                             </div>
                         </div>
                         <div>
                             {aiConnected ? (
                                 <span className="flex items-center gap-1.5 px-3 py-1 bg-green-50 text-green-700 rounded-full text-sm font-medium border border-green-200">
-                                    <CheckCircle className="w-4 h-4" /> Connected
+                                    <CheckCircle className="w-4 h-4" /> {t('connected')}
                                 </span>
                             ) : (
                                 <span className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium border border-gray-200">
-                                    <XCircle className="w-4 h-4" /> Not Connected
+                                    <XCircle className="w-4 h-4" /> {t('notConnected')}
                                 </span>
                             )}
                         </div>
@@ -461,7 +463,7 @@ export const IntegrationsPage = () => {
                     <CardContent className="space-y-6 pt-4">
                         <div className="bg-purple-50 p-4 rounded-lg border border-purple-100">
                             <h3 className="font-bold text-purple-800 mb-2 flex items-center gap-2">
-                                <ExternalLink className="w-4 h-4" /> How to get Gemini API Key (Free)
+                                <ExternalLink className="w-4 h-4" /> {t('howToGetGeminiKey')}
                             </h3>
                             <div className="text-sm text-purple-900 space-y-2">
                                 <p>1. Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="underline font-medium">Google AI Studio</a>.</p>
@@ -471,7 +473,7 @@ export const IntegrationsPage = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-medium text-gray-700">Gemini API Key</label>
+                            <label className="text-sm font-medium text-gray-700">{t('geminiApiKey')}</label>
                             <Input
                                 type="password"
                                 value={aiConfig.apiKey}
@@ -484,7 +486,7 @@ export const IntegrationsPage = () => {
                         <div className="flex justify-end pt-2">
                             <Button onClick={handleSaveAi} disabled={saving || !aiConfig.apiKey}>
                                 {saving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                                Save AI Connection
+                                {t('saveAiConnection')}
                             </Button>
                         </div>
                     </CardContent>

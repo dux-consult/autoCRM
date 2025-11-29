@@ -3,6 +3,7 @@ import { Plus, Play, Pause, Edit, Trash2, MoreHorizontal } from 'lucide-react';
 import { journeyService } from '../services/journeyService';
 import { AutomationJourney } from '../types';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Table, TableHeader, TableRow, TableHead, TableCell } from './ui';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 interface JourneyListProps {
     onCreateNew: () => void;
@@ -10,6 +11,7 @@ interface JourneyListProps {
 }
 
 export const JourneyList = ({ onCreateNew, onEdit }: JourneyListProps) => {
+    const { t } = useLanguage();
     const [journeys, setJourneys] = useState<AutomationJourney[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -29,19 +31,19 @@ export const JourneyList = ({ onCreateNew, onEdit }: JourneyListProps) => {
     };
 
     if (loading) {
-        return <div className="p-8 text-center">Loading journeys...</div>;
+        return <div className="p-8 text-center">{t('loadingJourneys')}</div>;
     }
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-2xl font-bold text-gray-900">Automation Journeys</h2>
-                    <p className="text-gray-500">Manage your automated customer workflows.</p>
+                    <h2 className="text-2xl font-bold text-gray-900">{t('journeysTitle')}</h2>
+                    <p className="text-gray-500">{t('journeysDesc')}</p>
                 </div>
                 <Button onClick={onCreateNew} className="flex items-center gap-2">
                     <Plus className="w-4 h-4" />
-                    Create Journey
+                    {t('createJourney')}
                 </Button>
             </div>
 
@@ -49,17 +51,17 @@ export const JourneyList = ({ onCreateNew, onEdit }: JourneyListProps) => {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Name</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Last Updated</TableHead>
-                            <TableHead className="text-right">Actions</TableHead>
+                            <TableHead>{t('name')}</TableHead>
+                            <TableHead>{t('status')}</TableHead>
+                            <TableHead>{t('lastUpdated')}</TableHead>
+                            <TableHead className="text-right">{t('actions')}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <tbody>
                         {journeys.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={4} className="text-center py-8 text-gray-500">
-                                    No journeys found. Create your first one!
+                                    {t('noJourneysFound')}
                                 </TableCell>
                             </TableRow>
                         ) : (
@@ -68,7 +70,7 @@ export const JourneyList = ({ onCreateNew, onEdit }: JourneyListProps) => {
                                     <TableCell className="font-medium">
                                         <div className="flex flex-col">
                                             <span className="text-gray-900">{journey.name}</span>
-                                            <span className="text-xs text-gray-500">{journey.description || 'No description'}</span>
+                                            <span className="text-xs text-gray-500">{journey.description || t('noDescription')}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell>

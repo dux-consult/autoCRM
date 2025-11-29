@@ -1,11 +1,29 @@
 import { GoogleGenAI } from "@google/genai";
+import { supabase } from '../lib/supabase';
 
-// Use environment variable for API key
-const apiKey = import.meta.env.VITE_GOOGLE_API_KEY;
+const getApiKey = async (): Promise<string | null> => {
+  try {
+    const { data: integration } = await supabase
+      .from('integrations')
+      .select('config')
+      .eq('provider', 'gemini')
+      .eq('is_active', true)
+      .single();
+
+    if (integration?.config?.api_key) {
+      return integration.config.api_key;
+    }
+  } catch (error) {
+    console.warn("Error fetching Gemini API key from settings:", error);
+  }
+  return null;
+};
 
 export const generateMarketingMessage = async (customerName: string, segment: string, lastPurchase: string): Promise<string> => {
+  const apiKey = await getApiKey();
+
   if (!apiKey) {
-    console.warn("VITE_GOOGLE_API_KEY is missing. Using mock response.");
+    console.warn("Gemini API Key is missing in Settings. Using mock response.");
     return new Promise((resolve) => {
       setTimeout(() => {
         if (segment === 'Champion') {

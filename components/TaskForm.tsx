@@ -3,6 +3,7 @@ import { Customer, Task } from '../types';
 import { customerService } from '../services/customerService';
 import { taskService } from '../services/taskService';
 import { Button, Input } from './ui';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 interface TaskFormProps {
     initialData?: Task;
@@ -11,6 +12,7 @@ interface TaskFormProps {
 }
 
 export const TaskForm: React.FC<TaskFormProps> = ({ initialData, onSuccess, onCancel }) => {
+    const { t } = useLanguage();
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -49,7 +51,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialData, onSuccess, onCa
             onSuccess();
         } catch (err) {
             console.error(err);
-            alert('Failed to save task');
+            alert(t('failedToSaveTask'));
         } finally {
             setLoading(false);
         }
@@ -58,9 +60,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialData, onSuccess, onCa
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-                <label className="text-sm font-medium">Task Title</label>
+                <label className="text-sm font-medium">{t('taskTitle')}</label>
                 <Input
-                    placeholder="e.g. Call to follow up"
+                    placeholder={t('taskTitlePlaceholder')}
                     value={title}
                     onChange={e => setTitle(e.target.value)}
                     required
@@ -69,20 +71,20 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialData, onSuccess, onCa
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Type</label>
+                    <label className="text-sm font-medium">{t('taskType')}</label>
                     <select
                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                         value={type}
                         onChange={e => setType(e.target.value)}
                     >
-                        <option value="Call">Call</option>
-                        <option value="Email">Email</option>
-                        <option value="Meeting">Meeting</option>
+                        <option value="Call">{t('call')}</option>
+                        <option value="Email">{t('email')}</option>
+                        <option value="Meeting">{t('meeting')}</option>
                         <option value="LINE">LINE</option>
                     </select>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Due Date</label>
+                    <label className="text-sm font-medium">{t('dueDate')}</label>
                     <Input
                         type="date"
                         value={dueDate}
@@ -93,14 +95,14 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialData, onSuccess, onCa
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-medium">Related Customer</label>
+                <label className="text-sm font-medium">{t('relatedCustomer')}</label>
                 <select
                     className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     value={customerId}
                     onChange={e => setCustomerId(e.target.value)}
                     required
                 >
-                    <option value="">Select Customer</option>
+                    <option value="">{t('selectCustomer')}</option>
                     {customers.map(c => (
                         <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>
                     ))}
@@ -108,9 +110,9 @@ export const TaskForm: React.FC<TaskFormProps> = ({ initialData, onSuccess, onCa
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={onCancel}>{t('cancel')}</Button>
                 <Button type="submit" disabled={loading}>
-                    {loading ? 'Saving...' : (initialData ? 'Update Task' : 'Create Task')}
+                    {loading ? t('saving') : (initialData ? t('updateTask') : t('createTask'))}
                 </Button>
             </div>
         </form>

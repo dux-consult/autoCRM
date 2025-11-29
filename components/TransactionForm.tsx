@@ -5,6 +5,7 @@ import { productService } from '../services/productService';
 import { transactionService } from '../services/transactionService';
 import { Button, Input } from './ui';
 import { Plus, Trash2 } from 'lucide-react';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 interface TransactionFormProps {
     initialData?: Transaction;
@@ -13,6 +14,7 @@ interface TransactionFormProps {
 }
 
 export const TransactionForm: React.FC<TransactionFormProps> = ({ initialData, onSuccess, onCancel }) => {
+    const { t } = useLanguage();
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(false);
@@ -34,17 +36,6 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ initialData, o
         };
         loadData();
     }, []);
-
-    // If initialData is provided but items are not loaded (e.g. from list view without join), we might need to fetch them.
-    // However, our getTransactions service currently fetches items? Let's check.
-    // Yes, getTransactions fetches items if we use getTransaction(id). But the list view might not have full details.
-    // For now, let's assume initialData passed from List has items.
-    // Actually, TransactionList uses getTransactions which includes items?
-    // Let's check TransactionList. It calls getTransactions which selects `*, customer:customers(...)`.
-    // It DOES NOT select items.
-    // So if we edit, we need to fetch the full transaction details first.
-    // We will handle this in TransactionList or here.
-    // Better to handle it here: if initialData is present but items are empty, fetch full transaction.
 
     useEffect(() => {
         if (initialData && (!initialData.items || initialData.items.length === 0)) {
@@ -118,7 +109,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ initialData, o
             onSuccess();
         } catch (err) {
             console.error(err);
-            alert('Failed to save transaction');
+            alert(t('failedToSaveTransaction'));
         } finally {
             setLoading(false);
         }
@@ -128,21 +119,21 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ initialData, o
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Customer</label>
+                    <label className="text-sm font-medium">{t('customerLabel')}</label>
                     <select
                         className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                         value={selectedCustomerId}
                         onChange={e => setSelectedCustomerId(e.target.value)}
                         required
                     >
-                        <option value="">Select Customer</option>
+                        <option value="">{t('selectCustomer')}</option>
                         {customers.map(c => (
                             <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>
                         ))}
                     </select>
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Date</label>
+                    <label className="text-sm font-medium">{t('dateLabel')}</label>
                     <Input
                         type="date"
                         value={transactionDate}
@@ -154,9 +145,9 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ initialData, o
 
             <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                    <h4 className="text-sm font-medium">Items</h4>
+                    <h4 className="text-sm font-medium">{t('itemsLabel')}</h4>
                     <Button type="button" size="sm" variant="outline" onClick={handleAddItem}>
-                        <Plus className="w-4 h-4 mr-2" /> Add Item
+                        <Plus className="w-4 h-4 mr-2" /> {t('addItem')}
                     </Button>
                 </div>
 
@@ -169,7 +160,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ initialData, o
                                 onChange={e => handleItemChange(index, 'product_id', e.target.value)}
                                 required
                             >
-                                <option value="">Select Product</option>
+                                <option value="">{t('selectProduct')}</option>
                                 {products.map(p => (
                                     <option key={p.id} value={p.id}>{p.name} (฿{p.selling_price})</option>
                                 ))}
@@ -181,7 +172,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ initialData, o
                                 min="1"
                                 value={item.quantity}
                                 onChange={e => handleItemChange(index, 'quantity', e.target.value)}
-                                placeholder="Qty"
+                                placeholder={t('qtyPlaceholder')}
                             />
                         </div>
                         <div className="w-24 pt-2 text-right text-sm font-medium">
@@ -195,19 +186,19 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({ initialData, o
 
                 {items.length === 0 && (
                     <div className="text-center py-4 text-gray-500 text-sm border border-dashed rounded-lg">
-                        No items added.
+                        {t('noItemsAdded')}
                     </div>
                 )}
             </div>
 
             <div className="flex justify-between items-center pt-4 border-t">
                 <div className="text-lg font-bold">
-                    Total: ฿{calculateTotal().toLocaleString()}
+                    {t('totalLabel')} ฿{calculateTotal().toLocaleString()}
                 </div>
                 <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+                    <Button type="button" variant="outline" onClick={onCancel}>{t('cancel')}</Button>
                     <Button type="submit" disabled={loading || !selectedCustomerId || items.length === 0}>
-                        {loading ? 'Saving...' : (initialData ? 'Update Transaction' : 'Create Transaction')}
+                        {loading ? t('saving') : (initialData ? t('updateTransaction') : t('createTransaction'))}
                     </Button>
                 </div>
             </div>

@@ -4,8 +4,10 @@ import { Task } from '../types';
 import { Card, CardHeader, CardTitle, CardContent, Badge, Button, Dialog, DialogContent, DialogHeader, DialogTitle } from './ui';
 import { Plus, CheckSquare, Sparkles, Trash2, MoreHorizontal } from 'lucide-react';
 import { TaskForm } from './TaskForm';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 export const TaskList: React.FC = () => {
+    const { t } = useLanguage();
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,7 +39,7 @@ export const TaskList: React.FC = () => {
     };
 
     const handleDelete = async (id: string) => {
-        if (!window.confirm('Are you sure you want to delete this task?')) return;
+        if (!window.confirm(t('deleteTaskConfirm'))) return;
         try {
             await taskService.deleteTask(id);
             loadTasks();
@@ -56,14 +58,14 @@ export const TaskList: React.FC = () => {
         setIsModalOpen(true);
     };
 
-    if (loading) return <div className="p-8 text-center">Loading tasks...</div>;
+    if (loading) return <div className="p-8 text-center">{t('loadingTasks')}</div>;
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-900">Tasks & Automation</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{t('tasksTitle')}</h2>
                 <Button onClick={handleAddClick} className="gap-2">
-                    <Plus className="w-4 h-4" /> Create Task
+                    <Plus className="w-4 h-4" /> {t('createTask')}
                 </Button>
             </div>
 
@@ -72,7 +74,7 @@ export const TaskList: React.FC = () => {
                 <Card className="bg-gradient-to-br from-blue-50 to-white border-blue-100">
                     <CardHeader>
                         <CardTitle className="text-blue-900 flex items-center gap-2">
-                            <Sparkles className="w-5 h-5" /> Active Workflows
+                            <Sparkles className="w-5 h-5" /> {t('activeWorkflows')}
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -80,18 +82,18 @@ export const TaskList: React.FC = () => {
                             <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                    <span className="text-sm font-medium">Refill Reminder (Auto-generated)</span>
+                                    <span className="text-sm font-medium">{t('refillReminder')}</span>
                                 </div>
-                                <Badge variant="default">Auto-Call</Badge>
+                                <Badge variant="default">{t('autoCall')}</Badge>
                             </div>
                             <div className="bg-white p-3 rounded-lg border border-blue-100 shadow-sm flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                    <span className="text-sm font-medium">Birthday Promo (Champion)</span>
+                                    <span className="text-sm font-medium">{t('birthdayPromo')}</span>
                                 </div>
-                                <Badge variant="default">Auto-LINE</Badge>
+                                <Badge variant="default">{t('autoLine')}</Badge>
                             </div>
-                            <Button variant="ghost" size="sm" className="w-full text-blue-600 mt-2">Manage Workflows</Button>
+                            <Button variant="ghost" size="sm" className="w-full text-blue-600 mt-2">{t('manageWorkflows')}</Button>
                         </div>
                     </CardContent>
                 </Card>
@@ -99,12 +101,12 @@ export const TaskList: React.FC = () => {
                 {/* Real Tasks */}
                 <Card>
                     <CardHeader>
-                        <CardTitle>My Tasks</CardTitle>
+                        <CardTitle>{t('myTasks')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4 max-h-[500px] overflow-y-auto">
                             {tasks.length === 0 ? (
-                                <div className="text-center py-4 text-gray-500">No pending tasks.</div>
+                                <div className="text-center py-4 text-gray-500">{t('noPendingTasks')}</div>
                             ) : (
                                 tasks.map(task => (
                                     <div key={task.id} className="group flex items-start justify-between p-3 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all">
@@ -117,7 +119,7 @@ export const TaskList: React.FC = () => {
                                             </button>
                                             <div>
                                                 <p className={`text-sm font-medium ${task.status === 'Completed' ? 'line-through text-gray-400' : 'text-gray-900'}`}>{task.title}</p>
-                                                <p className="text-xs text-gray-500 mt-1">For: {task.customerName} • Due {new Date(task.due_date).toLocaleDateString('th-TH')}</p>
+                                                <p className="text-xs text-gray-500 mt-1">{t('forCustomer')} {task.customerName} • {t('dueDate')} {new Date(task.due_date).toLocaleDateString('th-TH')}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -142,7 +144,7 @@ export const TaskList: React.FC = () => {
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-[500px]">
                     <DialogHeader>
-                        <DialogTitle>{editingTask ? 'Edit Task' : 'Create New Task'}</DialogTitle>
+                        <DialogTitle>{editingTask ? t('editTask') : t('createNewTask')}</DialogTitle>
                     </DialogHeader>
                     <TaskForm
                         initialData={editingTask}

@@ -22,8 +22,10 @@ import {
 import { Plus, Search, Filter, MoreHorizontal, ArrowUpDown, Download, Upload, Eye, Trash2 } from 'lucide-react';
 import { CustomerForm } from './CustomerForm';
 import { CustomerDetail } from './CustomerDetail';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 export const CustomerList: React.FC = () => {
+    const { t } = useLanguage();
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,7 @@ export const CustomerList: React.FC = () => {
             setCustomers(data);
         } catch (err) {
             console.error('Error fetching customers:', err);
-            setError('Failed to load customers');
+            setError(t('failedToLoadCustomers'));
         } finally {
             setLoading(false);
         }
@@ -120,9 +122,6 @@ export const CustomerList: React.FC = () => {
             const lines = text.split('\n');
             const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
 
-            // Simple CSV parsing (assumes no commas in fields for now, or use a library like PapaParse)
-            // Expected headers: First Name, Last Name, Email, Phone
-
             let successCount = 0;
             let failCount = 0;
 
@@ -150,9 +149,8 @@ export const CustomerList: React.FC = () => {
                 }
             }
 
-            alert(`Import finished: ${successCount} success, ${failCount} failed.`);
+            alert(t('importFinished').replace('{success}', successCount.toString()).replace('{fail}', failCount.toString()));
             fetchCustomers();
-            // Reset input
             event.target.value = '';
         };
         reader.readAsText(file);
@@ -174,15 +172,15 @@ export const CustomerList: React.FC = () => {
         }
     };
 
-    if (loading && customers.length === 0) return <div className="p-8 text-center">Loading customers...</div>;
+    if (loading && customers.length === 0) return <div className="p-8 text-center">{t('loadingCustomers')}</div>;
     if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
 
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-gray-900">Customers</h2>
-                    <p className="text-sm text-gray-500 mt-1">Manage your customer base and view insights.</p>
+                    <h2 className="text-2xl font-bold tracking-tight text-gray-900">{t('customersTitle')}</h2>
+                    <p className="text-sm text-gray-500 mt-1">{t('customersDesc')}</p>
                 </div>
                 <div className="flex gap-2">
                     <input
@@ -194,15 +192,15 @@ export const CustomerList: React.FC = () => {
                     />
                     <Button variant="outline" onClick={handleImportClick}>
                         <Upload className="w-4 h-4 mr-2" />
-                        Import
+                        {t('import')}
                     </Button>
                     <Button variant="outline" onClick={handleExport}>
                         <Download className="w-4 h-4 mr-2" />
-                        Export
+                        {t('export')}
                     </Button>
                     <Button onClick={handleAddClick}>
                         <Plus className="w-4 h-4 mr-2" />
-                        Add Customer
+                        {t('addCustomer')}
                     </Button>
                 </div>
             </div>
@@ -213,7 +211,7 @@ export const CustomerList: React.FC = () => {
                         <div className="relative flex-1 max-w-sm">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <Input
-                                placeholder="Search customers..."
+                                placeholder={t('searchCustomers')}
                                 className="pl-9"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -222,11 +220,11 @@ export const CustomerList: React.FC = () => {
                         <div className="flex gap-2 ml-auto">
                             <Button variant="outline" size="sm" className="hidden sm:flex">
                                 <Filter className="w-4 h-4 mr-2" />
-                                Filter
+                                {t('filter')}
                             </Button>
                             <Button variant="outline" size="sm" className="hidden sm:flex">
                                 <ArrowUpDown className="w-4 h-4 mr-2" />
-                                Sort
+                                {t('sort')}
                             </Button>
                         </div>
                     </div>
@@ -235,20 +233,20 @@ export const CustomerList: React.FC = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Contact</TableHead>
-                                <TableHead>Total Spend</TableHead>
-                                <TableHead>Transactions</TableHead>
-                                <TableHead>Last Purchase</TableHead>
-                                <TableHead>Segment</TableHead>
-                                <TableHead className="w-[100px] text-right">Actions</TableHead>
+                                <TableHead>{t('name')}</TableHead>
+                                <TableHead>{t('contact')}</TableHead>
+                                <TableHead>{t('totalSpend')}</TableHead>
+                                <TableHead>{t('transactions')}</TableHead>
+                                <TableHead>{t('lastPurchase')}</TableHead>
+                                <TableHead>{t('segment')}</TableHead>
+                                <TableHead className="w-[100px] text-right">{t('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <tbody>
                             {filteredCustomers.length === 0 ? (
                                 <TableRow>
-                                    <TableCell className="text-center py-8 text-gray-500" >
-                                        No customers found.
+                                    <TableCell colSpan={7} className="text-center py-8 text-gray-500" >
+                                        {t('noCustomersFound')}
                                     </TableCell>
                                 </TableRow>
                             ) : (
@@ -292,7 +290,7 @@ export const CustomerList: React.FC = () => {
                                                     <MoreHorizontal className="w-4 h-4" />
                                                 </Button>
                                                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => {
-                                                    if (window.confirm('Are you sure you want to delete this customer?')) {
+                                                    if (window.confirm(t('deleteCustomerConfirm'))) {
                                                         customerService.deleteCustomer(customer.id).then(() => fetchCustomers());
                                                     }
                                                 }}>
@@ -311,7 +309,7 @@ export const CustomerList: React.FC = () => {
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
-                        <DialogTitle>{editingCustomer ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
+                        <DialogTitle>{editingCustomer ? t('editCustomer') : t('addNewCustomer')}</DialogTitle>
                     </DialogHeader>
                     <CustomerForm
                         initialData={editingCustomer}
@@ -324,7 +322,7 @@ export const CustomerList: React.FC = () => {
             <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
                 <DialogContent className="sm:max-w-[900px]">
                     <DialogHeader>
-                        <DialogTitle>Customer Details</DialogTitle>
+                        <DialogTitle>{t('customerDetails')}</DialogTitle>
                     </DialogHeader>
                     {viewingCustomer && <CustomerDetail customer={viewingCustomer} />}
                 </DialogContent>

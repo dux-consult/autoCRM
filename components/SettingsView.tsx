@@ -6,8 +6,10 @@ import { Shop } from '../types';
 import { Card, CardHeader, CardTitle, CardContent, Button, Input } from './ui';
 import { User, Building, Save, MessageSquare } from 'lucide-react';
 import { IntegrationsPage } from './settings/IntegrationsPage';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 export const SettingsView: React.FC = () => {
+    const { t } = useLanguage();
     const { user, role } = useAuth();
     const [activeTab, setActiveTab] = useState<'profile' | 'integrations'>('profile');
     const [loading, setLoading] = useState(false);
@@ -70,10 +72,10 @@ export const SettingsView: React.FC = () => {
                 .eq('id', user!.id);
 
             if (error) throw error;
-            alert('Profile updated successfully!');
+            alert(t('profileUpdated'));
         } catch (error) {
             console.error('Error updating profile:', error);
-            alert('Failed to update profile.');
+            alert(t('failedToUpdateProfile'));
         } finally {
             setLoading(false);
         }
@@ -81,24 +83,24 @@ export const SettingsView: React.FC = () => {
 
     const handleSaveShop = async () => {
         if (!shop.name) {
-            alert('Shop Name is required');
+            alert(t('shopNameRequired'));
             return;
         }
         setShopLoading(true);
         try {
             if (existingShopId) {
                 await shopService.updateShop(existingShopId, shop);
-                alert('Shop settings updated!');
+                alert(t('shopSettingsUpdated'));
             } else {
                 const newShop = await shopService.createShop(shop);
                 if (newShop) {
                     setExistingShopId(newShop.id);
-                    alert('Shop created successfully!');
+                    alert(t('shopCreated'));
                 }
             }
         } catch (error) {
             console.error('Error saving shop:', error);
-            alert('Failed to save shop settings.');
+            alert(t('failedToSaveShop'));
         } finally {
             setShopLoading(false);
         }
@@ -107,7 +109,7 @@ export const SettingsView: React.FC = () => {
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-gray-900">Settings</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{t('settingsTitle')}</h2>
             </div>
 
             {/* Tabs */}
@@ -115,20 +117,20 @@ export const SettingsView: React.FC = () => {
                 <button
                     onClick={() => setActiveTab('profile')}
                     className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'profile'
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
                         }`}
                 >
-                    General & Profile
+                    {t('generalProfile')}
                 </button>
                 <button
                     onClick={() => setActiveTab('integrations')}
                     className={`px-4 py-2 text-sm font-medium rounded-md transition-all ${activeTab === 'integrations'
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-500 hover:text-gray-700'
                         }`}
                 >
-                    Integrations
+                    {t('integrations')}
                 </button>
             </div>
 
@@ -140,27 +142,27 @@ export const SettingsView: React.FC = () => {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <User className="w-5 h-5 text-blue-600" /> User Profile
+                                <User className="w-5 h-5 text-blue-600" /> {t('userProfile')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">First Name</label>
+                                    <label className="text-sm font-medium">{t('firstName')}</label>
                                     <Input
                                         value={profile.first_name}
                                         onChange={e => setProfile({ ...profile, first_name: e.target.value })}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Last Name</label>
+                                    <label className="text-sm font-medium">{t('lastName')}</label>
                                     <Input
                                         value={profile.last_name}
                                         onChange={e => setProfile({ ...profile, last_name: e.target.value })}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Email</label>
+                                    <label className="text-sm font-medium">{t('email')}</label>
                                     <Input
                                         value={profile.email}
                                         disabled
@@ -168,7 +170,7 @@ export const SettingsView: React.FC = () => {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Role</label>
+                                    <label className="text-sm font-medium">{t('role')}</label>
                                     <div className="px-3 py-2 border rounded-md bg-gray-50 text-gray-500 capitalize">
                                         {role?.replace('_', ' ')}
                                     </div>
@@ -177,7 +179,7 @@ export const SettingsView: React.FC = () => {
                             <div className="pt-2">
                                 <Button onClick={handleSaveProfile} disabled={loading}>
                                     <Save className="w-4 h-4 mr-2" />
-                                    {loading ? 'Saving...' : 'Save Profile'}
+                                    {loading ? t('saving') : t('saveProfile')}
                                 </Button>
                             </div>
                         </CardContent>
@@ -187,12 +189,12 @@ export const SettingsView: React.FC = () => {
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <Building className="w-5 h-5 text-purple-600" /> Shop Settings
+                                <Building className="w-5 h-5 text-purple-600" /> {t('shopSettings')}
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Shop Name</label>
+                                <label className="text-sm font-medium">{t('shopName')}</label>
                                 <Input
                                     value={shop.name}
                                     onChange={e => setShop({ ...shop, name: e.target.value })}
@@ -201,7 +203,7 @@ export const SettingsView: React.FC = () => {
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Phone</label>
+                                    <label className="text-sm font-medium">{t('phone')}</label>
                                     <Input
                                         value={shop.phone}
                                         onChange={e => setShop({ ...shop, phone: e.target.value })}
@@ -209,7 +211,7 @@ export const SettingsView: React.FC = () => {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-sm font-medium">Address</label>
+                                    <label className="text-sm font-medium">{t('address')}</label>
                                     <Input
                                         value={shop.address}
                                         onChange={e => setShop({ ...shop, address: e.target.value })}
@@ -220,7 +222,7 @@ export const SettingsView: React.FC = () => {
                             <div className="pt-2">
                                 <Button onClick={handleSaveShop} variant="outline" disabled={shopLoading}>
                                     <Save className="w-4 h-4 mr-2" />
-                                    {shopLoading ? 'Saving...' : (existingShopId ? 'Update Shop Settings' : 'Create Shop')}
+                                    {shopLoading ? t('saving') : (existingShopId ? t('updateShopSettings') : t('createShop'))}
                                 </Button>
                             </div>
                         </CardContent>

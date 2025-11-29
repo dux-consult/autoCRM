@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Product } from '../types';
 import { productService } from '../services/productService';
 import { Button, Input } from './ui';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 interface ProductFormProps {
     initialData?: Product;
@@ -10,6 +11,7 @@ interface ProductFormProps {
 }
 
 export const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSuccess, onCancel }) => {
+    const { t } = useLanguage();
     const [formData, setFormData] = useState<Partial<Product>>({
         name: initialData?.name || '',
         selling_price: initialData?.selling_price || 0,
@@ -34,7 +36,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSuccess
             onSuccess();
         } catch (err) {
             console.error(err);
-            setError('Failed to save product');
+            setError(t('failedToSaveProduct'));
         } finally {
             setLoading(false);
         }
@@ -43,7 +45,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSuccess
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-                <label className="text-sm font-medium">Product Name</label>
+                <label className="text-sm font-medium">{t('productNameLabel')}</label>
                 <Input
                     required
                     value={formData.name}
@@ -53,7 +55,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSuccess
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Selling Price</label>
+                    <label className="text-sm font-medium">{t('sellingPriceLabel')}</label>
                     <Input
                         type="number"
                         required
@@ -62,7 +64,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSuccess
                     />
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Cost Price</label>
+                    <label className="text-sm font-medium">{t('costPriceLabel')}</label>
                     <Input
                         type="number"
                         value={formData.cost_price}
@@ -73,30 +75,30 @@ export const ProductForm: React.FC<ProductFormProps> = ({ initialData, onSuccess
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Unit (e.g., pcs, box)</label>
+                    <label className="text-sm font-medium">{t('unitLabel')}</label>
                     <Input
                         value={formData.unit}
                         onChange={e => setFormData({ ...formData, unit: e.target.value })}
                     />
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium">Usage Duration (Days)</label>
+                    <label className="text-sm font-medium">{t('usageDurationLabel')}</label>
                     <Input
                         type="number"
                         value={formData.usage_duration_days}
                         onChange={e => setFormData({ ...formData, usage_duration_days: parseInt(e.target.value) })}
-                        placeholder="For proactive alerts"
+                        placeholder={t('usageDurationPlaceholder')}
                     />
-                    <p className="text-xs text-gray-500">Estimated days until product runs out.</p>
+                    <p className="text-xs text-gray-500">{t('usageDurationHelp')}</p>
                 </div>
             </div>
 
             {error && <div className="text-red-500 text-sm">{error}</div>}
 
             <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+                <Button type="button" variant="outline" onClick={onCancel}>{t('cancel')}</Button>
                 <Button type="submit" disabled={loading}>
-                    {loading ? 'Saving...' : (initialData ? 'Update' : 'Create')}
+                    {loading ? t('saving') : (initialData ? t('update') : t('create'))}
                 </Button>
             </div>
         </form>

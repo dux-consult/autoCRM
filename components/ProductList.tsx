@@ -19,8 +19,10 @@ import {
 } from './ui';
 import { Plus, Search, Filter, MoreHorizontal, ArrowUpDown, Package, Trash2, Upload } from 'lucide-react';
 import { ProductForm } from './ProductForm';
+import { useLanguage } from '../src/contexts/LanguageContext';
 
 export const ProductList: React.FC = () => {
+    const { t } = useLanguage();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -39,7 +41,7 @@ export const ProductList: React.FC = () => {
             setProducts(data);
         } catch (err) {
             console.error('Error fetching products:', err);
-            setError('Failed to load products');
+            setError(t('failedToLoadProducts'));
         } finally {
             setLoading(false);
         }
@@ -106,7 +108,7 @@ export const ProductList: React.FC = () => {
                 }
             }
 
-            alert(`Import finished: ${successCount} success, ${failCount} failed.`);
+            alert(t('importFinished').replace('{success}', successCount.toString()).replace('{fail}', failCount.toString()));
             fetchProducts();
             event.target.value = '';
         };
@@ -117,15 +119,15 @@ export const ProductList: React.FC = () => {
         product.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (loading && products.length === 0) return <div className="p-8 text-center">Loading products...</div>;
+    if (loading && products.length === 0) return <div className="p-8 text-center">{t('loadingProducts')}</div>;
     if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
 
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-gray-900">Products</h2>
-                    <p className="text-sm text-gray-500 mt-1">Manage your product catalog and pricing.</p>
+                    <h2 className="text-2xl font-bold tracking-tight text-gray-900">{t('productsTitle')}</h2>
+                    <p className="text-sm text-gray-500 mt-1">{t('productsDesc')}</p>
                 </div>
                 <div className="flex gap-2">
                     <input
@@ -137,11 +139,11 @@ export const ProductList: React.FC = () => {
                     />
                     <Button variant="outline" onClick={handleImportClick}>
                         <Upload className="w-4 h-4 mr-2" />
-                        Import
+                        {t('import')}
                     </Button>
                     <Button onClick={handleAddClick}>
                         <Plus className="w-4 h-4 mr-2" />
-                        Add Product
+                        {t('addProduct')}
                     </Button>
                 </div>
             </div>
@@ -152,7 +154,7 @@ export const ProductList: React.FC = () => {
                         <div className="relative flex-1 max-w-sm">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <Input
-                                placeholder="Search products..."
+                                placeholder={t('searchProducts')}
                                 className="pl-9"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -161,11 +163,11 @@ export const ProductList: React.FC = () => {
                         <div className="flex gap-2 ml-auto">
                             <Button variant="outline" size="sm" className="hidden sm:flex">
                                 <Filter className="w-4 h-4 mr-2" />
-                                Filter
+                                {t('filter')}
                             </Button>
                             <Button variant="outline" size="sm" className="hidden sm:flex">
                                 <ArrowUpDown className="w-4 h-4 mr-2" />
-                                Sort
+                                {t('sort')}
                             </Button>
                         </div>
                     </div>
@@ -174,21 +176,21 @@ export const ProductList: React.FC = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Product Name</TableHead>
-                                <TableHead>Selling Price</TableHead>
-                                <TableHead>Cost Price</TableHead>
-                                <TableHead>Unit</TableHead>
-                                <TableHead>Usage Duration</TableHead>
-                                <TableHead className="w-[100px] text-right">Actions</TableHead>
+                                <TableHead>{t('productName')}</TableHead>
+                                <TableHead>{t('sellingPrice')}</TableHead>
+                                <TableHead>{t('costPrice')}</TableHead>
+                                <TableHead>{t('unit')}</TableHead>
+                                <TableHead>{t('usageDuration')}</TableHead>
+                                <TableHead className="w-[100px] text-right">{t('actions')}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <tbody>
                             {filteredProducts.length === 0 ? (
                                 <TableRow>
-                                    <TableCell className="text-center py-8 text-gray-500" >
+                                    <TableCell colSpan={6} className="text-center py-8 text-gray-500" >
                                         <div className="flex flex-col items-center justify-center">
                                             <Package className="w-12 h-12 text-gray-300 mb-2" />
-                                            <p>No products found.</p>
+                                            <p>{t('noProductsFound')}</p>
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -218,7 +220,7 @@ export const ProductList: React.FC = () => {
                                                     <MoreHorizontal className="w-4 h-4" />
                                                 </Button>
                                                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => {
-                                                    if (window.confirm('Are you sure you want to delete this product?')) {
+                                                    if (window.confirm(t('deleteProductConfirm'))) {
                                                         productService.deleteProduct(product.id).then(() => fetchProducts());
                                                     }
                                                 }}>
@@ -237,7 +239,7 @@ export const ProductList: React.FC = () => {
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
-                        <DialogTitle>{editingProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+                        <DialogTitle>{editingProduct ? t('editProduct') : t('addNewProduct')}</DialogTitle>
                     </DialogHeader>
                     <ProductForm
                         initialData={editingProduct}
