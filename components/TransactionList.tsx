@@ -144,15 +144,15 @@ export const TransactionList: React.FC = () => {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
-                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditClick(t)}>
-                                                    <MoreHorizontal className="w-4 h-4" />
+                                                <Button variant="ghost" size="sm" className="h-10 w-10 p-0" onClick={() => handleEditClick(t)}>
+                                                    <MoreHorizontal className="w-5 h-5" />
                                                 </Button>
-                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => {
+                                                <Button variant="ghost" size="sm" className="h-10 w-10 p-0" onClick={() => {
                                                     if (window.confirm('Are you sure you want to delete this transaction?')) {
                                                         transactionService.deleteTransaction(t.id).then(() => fetchTransactions());
                                                     }
                                                 }}>
-                                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                                    <Trash2 className="w-5 h-5 text-red-500" />
                                                 </Button>
                                             </div>
                                         </TableCell>

@@ -125,11 +125,11 @@ export const TaskList: React.FC = () => {
                                         <div className="flex items-center gap-2">
                                             <Badge variant={task.status === 'Overdue' ? 'danger' : task.status === 'Completed' ? 'default' : 'warning'}>{task.type}</Badge>
                                             <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleEditClick(task)}>
-                                                    <MoreHorizontal className="w-3 h-3" />
+                                                <Button variant="ghost" size="sm" className="h-9 w-9 p-0" onClick={() => handleEditClick(task)}>
+                                                    <MoreHorizontal className="w-5 h-5" />
                                                 </Button>
-                                                <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => handleDelete(task.id)}>
-                                                    <Trash2 className="w-3 h-3 text-red-500" />
+                                                <Button variant="ghost" size="sm" className="h-9 w-9 p-0" onClick={() => handleDelete(task.id)}>
+                                                    <Trash2 className="w-5 h-5 text-red-500" />
                                                 </Button>
                                             </div>
                                         </div>

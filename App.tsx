@@ -29,6 +29,7 @@ import { TransactionList } from './components/TransactionList';
 import { TaskList } from './components/TaskList';
 import { SettingsView } from './components/SettingsView';
 import { AutomationView } from './components/AutomationView';
+import { Customer360 } from './components/customer360';
 
 // --- Dashboard View ---
 const DashboardView = () => {
@@ -223,8 +224,8 @@ const DashboardView = () => {
 };
 
 // --- Customers View ---
-const CustomersView = () => {
-  return <CustomerList />;
+const CustomersView = ({ onViewCustomer360 }: { onViewCustomer360?: (customerId: string) => void }) => {
+  return <CustomerList onViewCustomer360={onViewCustomer360} />;
 };
 
 // --- Super Admin View ---
@@ -309,13 +310,37 @@ const SuperAdminView = () => {
 // --- Authenticated App Container ---
 const DashboardApp = () => {
   const [currentView, setCurrentView] = useState<ViewState>('dashboard');
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const { role } = useAuth();
   const { t } = useLanguage();
+
+  const handleViewChange = (view: ViewState) => {
+    setCurrentView(view);
+    if (view !== 'customer360') {
+      setSelectedCustomerId(null);
+    }
+  };
+
+  const handleViewCustomer360 = (customerId: string) => {
+    setSelectedCustomerId(customerId);
+    setCurrentView('customer360');
+  };
 
   const renderView = () => {
     switch (currentView) {
       case 'dashboard': return <DashboardView />;
-      case 'customers': return <CustomersView />;
+      case 'customers': return <CustomersView onViewCustomer360={handleViewCustomer360} />;
+      case 'customer360':
+        if (!selectedCustomerId) {
+          handleViewChange('customers');
+          return null;
+        }
+        return (
+          <Customer360
+            customerId={selectedCustomerId}
+            onBack={() => handleViewChange('customers')}
+          />
+        );
       case 'products': return <ProductList />;
       case 'transactions': return <TransactionList />;
       case 'tasks': return <TaskList />;
@@ -329,7 +354,7 @@ const DashboardApp = () => {
   };
 
   return (
-    <Layout currentView={currentView} onViewChange={setCurrentView}>
+    <Layout currentView={currentView} onViewChange={handleViewChange}>
       {renderView()}
     </Layout>
   );

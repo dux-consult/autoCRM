@@ -216,15 +216,15 @@ export const ProductList: React.FC = () => {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
-                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditClick(product)}>
-                                                    <MoreHorizontal className="w-4 h-4" />
+                                                <Button variant="ghost" size="sm" className="h-10 w-10 p-0" onClick={() => handleEditClick(product)}>
+                                                    <MoreHorizontal className="w-5 h-5" />
                                                 </Button>
-                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => {
+                                                <Button variant="ghost" size="sm" className="h-10 w-10 p-0" onClick={() => {
                                                     if (window.confirm(t('deleteProductConfirm'))) {
                                                         productService.deleteProduct(product.id).then(() => fetchProducts());
                                                     }
                                                 }}>
-                                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                                    <Trash2 className="w-5 h-5 text-red-500" />
                                                 </Button>
                                             </div>
                                         </TableCell>

@@ -19,25 +19,23 @@ import {
     DialogHeader,
     DialogTitle
 } from './ui';
-import { Plus, Search, Filter, MoreHorizontal, ArrowUpDown, Download, Upload, Eye, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, ArrowUpDown, Download, Upload, Trash2, User } from 'lucide-react';
 import { CustomerForm } from './CustomerForm';
-import { CustomerDetail } from './CustomerDetail';
 import { useLanguage } from '../src/contexts/LanguageContext';
 
-export const CustomerList: React.FC = () => {
+interface CustomerListProps {
+    onViewCustomer360?: (customerId: string) => void;
+}
+
+export const CustomerList: React.FC<CustomerListProps> = ({ onViewCustomer360 }) => {
     const { t } = useLanguage();
     const [customers, setCustomers] = useState<Customer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Edit/Add Modal
+    // Add Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingCustomer, setEditingCustomer] = useState<Customer | undefined>(undefined);
-
-    // View Modal
-    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [viewingCustomer, setViewingCustomer] = useState<Customer | undefined>(undefined);
 
     useEffect(() => {
         fetchCustomers();
@@ -57,18 +55,7 @@ export const CustomerList: React.FC = () => {
     };
 
     const handleAddClick = () => {
-        setEditingCustomer(undefined);
         setIsModalOpen(true);
-    };
-
-    const handleEditClick = (customer: Customer) => {
-        setEditingCustomer(customer);
-        setIsModalOpen(true);
-    };
-
-    const handleViewClick = (customer: Customer) => {
-        setViewingCustomer(customer);
-        setIsViewModalOpen(true);
     };
 
     const handleFormSuccess = () => {
@@ -283,18 +270,17 @@ export const CustomerList: React.FC = () => {
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex justify-end gap-1">
-                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleViewClick(customer)}>
-                                                    <Eye className="w-4 h-4 text-blue-600" />
-                                                </Button>
-                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEditClick(customer)}>
-                                                    <MoreHorizontal className="w-4 h-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => {
+                                                {onViewCustomer360 && (
+                                                    <Button variant="ghost" size="sm" className="h-10 w-10 p-0" onClick={() => onViewCustomer360(customer.id)} title="Customer 360">
+                                                        <User className="w-5 h-5 text-primary" />
+                                                    </Button>
+                                                )}
+                                                <Button variant="ghost" size="sm" className="h-10 w-10 p-0" onClick={() => {
                                                     if (window.confirm(t('deleteCustomerConfirm'))) {
                                                         customerService.deleteCustomer(customer.id).then(() => fetchCustomers());
                                                     }
-                                                }}>
-                                                    <Trash2 className="w-4 h-4 text-red-500" />
+                                                }} title={t('delete') || 'ลบ'}>
+                                                    <Trash2 className="w-5 h-5 text-red-500" />
                                                 </Button>
                                             </div>
                                         </TableCell>
@@ -309,22 +295,12 @@ export const CustomerList: React.FC = () => {
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
                 <DialogContent className="sm:max-w-[600px]">
                     <DialogHeader>
-                        <DialogTitle>{editingCustomer ? t('editCustomer') : t('addNewCustomer')}</DialogTitle>
+                        <DialogTitle>{t('addNewCustomer')}</DialogTitle>
                     </DialogHeader>
                     <CustomerForm
-                        initialData={editingCustomer}
                         onSuccess={handleFormSuccess}
                         onCancel={() => setIsModalOpen(false)}
                     />
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
-                <DialogContent className="sm:max-w-[900px]">
-                    <DialogHeader>
-                        <DialogTitle>{t('customerDetails')}</DialogTitle>
-                    </DialogHeader>
-                    {viewingCustomer && <CustomerDetail customer={viewingCustomer} />}
                 </DialogContent>
             </Dialog>
         </div>
