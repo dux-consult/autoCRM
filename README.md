@@ -19,3 +19,4 @@ View your app in AI Studio: https://ai.studio/apps/drive/1Plo2RpgS0IHoLWa-Cb7xyC
 3. Run the app:
    `npm run dev`
 4. Check all 
+5. Update
