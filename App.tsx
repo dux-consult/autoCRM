@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Layout } from './components/Layout';
 import { LandingPage } from './components/LandingPage';
+import { PetShopPage } from './components/PetShopPage';
+import { AirServicePage } from './components/AirServicePage';
 import { ViewState, RFMSegment, Customer } from './types';
 import { MOCK_CUSTOMERS, MOCK_TASKS, MOCK_TENANTS } from './constants';
 import { Card, CardContent, CardHeader, CardTitle, Button, Badge, Table, TableHeader, TableRow, TableHead, TableCell } from './components/ui';
@@ -30,6 +32,8 @@ import { TaskList } from './components/TaskList';
 import { SettingsView } from './components/SettingsView';
 import { AutomationView } from './components/AutomationView';
 import { Customer360 } from './components/customer360';
+
+type PublicPage = 'home' | 'pet-shop' | 'air-service';
 
 // --- Dashboard View ---
 const DashboardView = () => {
@@ -365,6 +369,7 @@ function AppContent() {
   const { user, loading } = useAuth();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [authInitialView, setAuthInitialView] = useState<'login' | 'register'>('login');
+  const [currentPage, setCurrentPage] = useState<PublicPage>('home');
 
   if (loading) {
     return (
@@ -378,18 +383,52 @@ function AppContent() {
     return <DashboardApp />;
   }
 
+  const handleLoginClick = () => {
+    setAuthInitialView('login');
+    setIsLoginModalOpen(true);
+  };
+
+  const handleRegisterClick = () => {
+    setAuthInitialView('register');
+    setIsLoginModalOpen(true);
+  };
+
+  const renderPublicPage = () => {
+    switch (currentPage) {
+      case 'pet-shop':
+        return (
+          <PetShopPage
+            onLoginClick={handleLoginClick}
+            onRegisterClick={handleRegisterClick}
+            onNavigateHome={() => setCurrentPage('home')}
+            onNavigateAirService={() => setCurrentPage('air-service')}
+          />
+        );
+      case 'air-service':
+        return (
+          <AirServicePage
+            onLoginClick={handleLoginClick}
+            onRegisterClick={handleRegisterClick}
+            onNavigateHome={() => setCurrentPage('home')}
+            onNavigatePetShop={() => setCurrentPage('pet-shop')}
+          />
+        );
+      case 'home':
+      default:
+        return (
+          <LandingPage
+            onLoginClick={handleLoginClick}
+            onRegisterClick={handleRegisterClick}
+            onNavigatePetShop={() => setCurrentPage('pet-shop')}
+            onNavigateAirService={() => setCurrentPage('air-service')}
+          />
+        );
+    }
+  };
+
   return (
     <>
-      <LandingPage
-        onLoginClick={() => {
-          setAuthInitialView('login');
-          setIsLoginModalOpen(true);
-        }}
-        onRegisterClick={() => {
-          setAuthInitialView('register');
-          setIsLoginModalOpen(true);
-        }}
-      />
+      {renderPublicPage()}
       <AuthModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}

@@ -359,6 +359,35 @@ export const translations = {
         help: 'ช่วยเหลือ',
         copyright: '© 2024 SARN Thailand. All rights reserved.',
 
+        // Solutions Navigation
+        solutions: 'โซลูชั่น',
+        petShopSolution: 'สำหรับร้านสัตว์เลี้ยง',
+        airServiceSolution: 'สำหรับธุรกิจแอร์',
+
+        // Pet Shop Page
+        petShopHeroTitle: 'ระบบจัดการร้านสัตว์เลี้ยง ครบวงจร',
+        petShopHeroDesc: 'จัดการร้านสัตว์เลี้ยงได้ง่ายขึ้นด้วยระบบ POS, จองคิวอาบน้ำตัดขน, และติดตามสต็อกสินค้าในที่เดียว',
+        petShopFeature1Title: 'ระบบ POS สำหรับร้านสัตว์เลี้ยง',
+        petShopFeature1Desc: 'บันทึกการขายอาหาร อุปกรณ์ ยา และบริการต่างๆ พร้อมคำนวณราคาอัตโนมัติ รองรับการชำระเงินหลายช่องทาง',
+        petShopFeature2Title: 'จัดการนัดหมายอาบน้ำ-ตัดขน',
+        petShopFeature2Desc: 'ระบบจองคิวออนไลน์ แจ้งเตือนลูกค้าล่วงหน้า จัดตารางช่างได้อย่างมีประสิทธิภาพ ลดการนัดพร้อมกัน',
+        petShopFeature3Title: 'บันทึกประวัติสัตว์เลี้ยง',
+        petShopFeature3Desc: 'เก็บข้อมูลสัตว์เลี้ยงของแต่ละครอบครัว ประวัติการฉีดวัคซีน การรักษา และความชอบ เพื่อบริการที่ดีขึ้น',
+        petShopCtaTitle: 'พร้อมยกระดับร้านสัตว์เลี้ยงของคุณแล้วหรือยัง?',
+        petShopCtaDesc: 'เริ่มต้นใช้งาน SARN วันนี้ ทดลองใช้ฟรี 30 วัน ไม่ต้องผูกบัตรเครดิต',
+
+        // Air Service Page
+        airServiceHeroTitle: 'ระบบจัดการธุรกิจแอร์ และบริการ',
+        airServiceHeroDesc: 'บริหารจัดการงานซ่อม ติดตั้ง บำรุงรักษาเครื่องปรับอากาศ ติดตามช่างเทค และประวัติลูกค้าได้ครบจบในที่เดียว',
+        airServiceFeature1Title: 'ติดตามงานช่างแบบเรียลไทม์',
+        airServiceFeature1Desc: 'สร้างใบงาน มอบหมายช่าง ติดตามสถานะงานทุกขั้นตอน จากรับเคส ถึงเสร็จงาน พร้อมระบบแจ้งเตือนอัตโนมัติ',
+        airServiceFeature2Title: 'กำหนดตารางบำรุงรักษา',
+        airServiceFeature2Desc: 'ระบบจะแจ้งเตือนอัตโนมัติเมื่อถึงเวลาล้างแอร์ หรือเปลี่ยนอะไหล่ตามกำหนด ช่วยเพิ่มรายได้ประจำ ลูกค้าไม่หาย',
+        airServiceFeature3Title: 'ประวัติการบริการครบถ้วน',
+        airServiceFeature3Desc: 'บันทึกรุ่นแอร์ อะไหล่ที่เคยเปลี่ยน ปัญหาที่เคยเจอ ช่างสามารถดูประวัติย้อนหลังก่อนไปหน้างานได้',
+        airServiceCtaTitle: 'เปลี่ยนกระดาษเป็นระบบดิจิทัล',
+        airServiceCtaDesc: 'ลดงานเอกสาร เพิ่มประสิทธิภาพทีม และไม่พลาดทุกโอกาสขายด้วย SARN',
+
         // Auth Modal
         registerSuccess: 'สมัครสมาชิกสำเร็จ! กรุณาตรวจสอบอีเมลเพื่อยืนยันตัวตน',
         genericError: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง',
@@ -731,6 +760,35 @@ export const translations = {
         privacy: 'Privacy Policy',
         help: 'Help',
         copyright: '© 2024 SARN Thailand. All rights reserved.',
+
+        // Solutions Navigation
+        solutions: 'Solutions',
+        petShopSolution: 'Pet Shop Solution',
+        airServiceSolution: 'Air Service Solution',
+
+        // Pet Shop Page
+        petShopHeroTitle: 'Complete Pet Shop Management System',
+        petShopHeroDesc: 'Manage your pet shop easily with POS system, grooming appointments, and inventory tracking all in one place',
+        petShopFeature1Title: 'POS System for Pet Shops',
+        petShopFeature1Desc: 'Record sales of food, supplies, medicine, and services with automatic price calculation. Supports multiple payment methods.',
+        petShopFeature2Title: 'Grooming Appointment Management',
+        petShopFeature2Desc: 'Online booking system, customer reminders, efficient staff scheduling. Reduce double bookings.',
+        petShopFeature3Title: 'Pet History Records',
+        petShopFeature3Desc: 'Store pet information for each family, vaccination history, treatments, and preferences for better service.',
+        petShopCtaTitle: 'Ready to upgrade your pet shop?',
+        petShopCtaDesc: 'Start using SARN today. Try free for 30 days, no credit card required.',
+
+        // Air Service Page
+        airServiceHeroTitle: 'Air Conditioning Service Management System',
+        airServiceHeroDesc: 'Manage repair, installation, and maintenance of air conditioners. Track technicians and customer history all in one place.',
+        airServiceFeature1Title: 'Real-time Technician Tracking',
+        airServiceFeature1Desc: 'Create work orders, assign technicians, track status at every step from case intake to completion. Automatic notifications included.',
+        airServiceFeature2Title: 'Schedule Maintenance Plans',
+        airServiceFeature2Desc: 'System automatically reminds when it\'s time to clean AC or replace parts. Increase recurring revenue, keep customers engaged.',
+        airServiceFeature3Title: 'Complete Service History',
+        airServiceFeature3Desc: 'Record AC models, parts replaced, past issues. Technicians can review history before arriving at job sites.',
+        airServiceCtaTitle: 'Go Digital, Ditch the Paper',
+        airServiceCtaDesc: 'Reduce paperwork, increase team efficiency, and never miss a sales opportunity with SARN.',
 
         // Auth Modal
         registerSuccess: 'Registration successful! Please check your email to verify your identity.',
