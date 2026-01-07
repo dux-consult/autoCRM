@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from './ui';
-import { Menu, X, Command, Check, Wind, Wrench, ClipboardList, ArrowRight, PawPrint, Sparkles } from 'lucide-react';
+import { Menu, X, Command, Check, Wind, Wrench, ClipboardList, ArrowRight, PawPrint, Sparkles, TrendingUp, BarChart } from 'lucide-react';
 import { useLanguage } from '../src/contexts/LanguageContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
@@ -22,38 +22,49 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
     const [isSolutionsOpen, setIsSolutionsOpen] = useState(false);
 
     return (
-        <div className="min-h-screen bg-white font-sans text-slate-900">
+        <div className="min-h-screen bg-white font-sans text-slate-900 overflow-x-hidden">
+            <style>{`
+                @keyframes float-slow {
+                    0%, 100% { transform: translateY(0); }
+                    50% { transform: translateY(-20px); }
+                }
+                .animate-float-slow {
+                    animation: float-slow 6s ease-in-out infinite;
+                }
+            `}</style>
             {/* Navbar */}
-            <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
-                <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-3 cursor-pointer" onClick={onNavigateHome}>
-                        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-sm">
-                            <Command className="text-white w-6 h-6" />
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm">
+                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
+                    {/* Left: Logo + Category */}
+                    <div className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-opacity" onClick={onNavigateHome}>
+                        <div className="flex items-center gap-2">
+                            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center shadow-sm">
+                                <Command className="text-white w-5 h-5" />
+                            </div>
+                            <span className="text-lg font-bold text-slate-900 tracking-tight">SARN</span>
                         </div>
-                        <div className="flex flex-col -space-y-0.5">
-                            <span className="text-xl font-bold text-slate-900 tracking-tight">SARN</span>
-                            <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Auto CRM</span>
-                        </div>
+                        <div className="h-5 w-px bg-slate-200 hidden sm:block"></div>
+                        <span className="text-sm font-bold text-blue-600 hidden sm:block">{t('navForAirService')}</span>
                     </div>
 
-                    {/* Desktop Menu - Content Navigation */}
-                    <div className="hidden md:flex items-center gap-6">
-                        <a href="#features" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">
-                            คุณสมบัติ
+                    {/* Center: Navigation (Truly Centered) */}
+                    <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+                        <a href="#features" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                            {t('features')}
                         </a>
-                        <a href="#challenges" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">
-                            ปัญหาที่พบบ่อย
+                        <a href="#challenges" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                            {t('navChallenges')}
                         </a>
-                        <a href="#use-cases" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">
-                            ตัวอย่างการใช้งาน
+                        <a href="#use-cases" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                            {t('navUseCases')}
                         </a>
-                        <div className="h-6 w-px bg-slate-200"></div>
+                    </div>
+
+                    {/* Right: Actions (Lang + CTA) - No Login */}
+                    <div className="hidden md:flex items-center gap-4">
                         <LanguageSwitcher />
-                        <Button onClick={onLoginClick} variant="ghost" size="sm">
-                            {t('login')}
-                        </Button>
-                        <Button onClick={onRegisterClick} size="sm" className="bg-blue-600 hover:bg-blue-700">
-                            ทดลองใช้ฟรี
+                        <Button onClick={onRegisterClick} className="bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-200">
+                            {t('tryFree')}
                         </Button>
                     </div>
 
@@ -70,28 +81,30 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
                 {isMenuOpen && (
                     <div className="md:hidden bg-white border-b border-slate-100 p-4 space-y-4 shadow-lg">
                         <a href="#features" className="block w-full text-left text-sm font-medium text-slate-600">
-                            คุณสมบัติ
+                            {t('features')}
                         </a>
                         <a href="#challenges" className="block w-full text-left text-sm font-medium text-slate-600">
-                            ปัญหาที่พบบ่อย
+                            {t('navChallenges')}
                         </a>
                         <a href="#use-cases" className="block w-full text-left text-sm font-medium text-slate-600">
-                            ตัวอย่างการใช้งาน
+                            {t('navUseCases')}
                         </a>
                         <div className="pt-4 flex flex-col gap-3">
                             <Button variant="outline" className="w-full justify-center" onClick={onLoginClick}>{t('login')}</Button>
-                            <Button className="w-full justify-center bg-blue-600 hover:bg-blue-700" onClick={onRegisterClick}>ทดลองใช้ฟรี</Button>
+                            <Button className="w-full justify-center bg-blue-600 hover:bg-blue-700" onClick={onRegisterClick}>{t('startFreeTrial')}</Button>
                         </div>
                     </div>
                 )}
             </nav>
 
             {/* Hero Section */}
-            <section className="relative pt-20 pb-32 px-6 overflow-hidden">
-                {/* Background Gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-cyan-50 to-slate-50 opacity-60"></div>
-                <div className="absolute top-20 right-0 w-96 h-96 bg-blue-200/30 rounded-full blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-200/30 rounded-full blur-3xl"></div>
+            <section className="relative pt-32 pb-40 px-6 overflow-hidden">
+                {/* Modern Background */}
+                <div className="absolute inset-0 bg-white">
+                    <div className="absolute inset-0 bg-[linear-gradient(to_right,#e0f2fe_1px,transparent_1px),linear-gradient(to_bottom,#e0f2fe_1px,transparent_1px)] bg-[size:24px_24px] opacity-50"></div>
+                    <div className="absolute top-20 right-0 w-96 h-96 bg-blue-200/40 rounded-full blur-[100px] animate-float-slow"></div>
+                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-cyan-200/40 rounded-full blur-[100px] animate-float-slow" style={{ animationDelay: '2s' }}></div>
+                </div>
 
                 <div className="relative max-w-5xl mx-auto text-center space-y-8">
                     <div className="inline-flex items-center px-4 py-2 rounded-full bg-white border border-blue-200 shadow-sm">
@@ -141,6 +154,55 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
                                     </div>
                                     <div className="h-2 w-16 bg-slate-100 rounded"></div>
                                     <div className="h-2 w-20 bg-slate-100 rounded"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Air Service Trends Section */}
+            <section className="py-20 bg-slate-50 border-y border-slate-100">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="flex flex-col md:flex-row items-center gap-12">
+                        <div className="flex-1 space-y-6">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-bold">
+                                <TrendingUp className="w-4 h-4" /> {t('airTrendsBadge')}
+                            </div>
+                            <h2 className="text-3xl font-bold text-slate-900">{t('airTrendsTitle')}</h2>
+                            <p className="text-slate-600 leading-relaxed">
+                                {t('airTrendsDesc')}
+                            </p>
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="p-4 bg-white rounded-xl shadow-sm border border-slate-100">
+                                    <div className="text-3xl font-bold text-blue-600 mb-1">-20%</div>
+                                    <div className="text-sm text-slate-500">{t('airTrendsStat1')}</div>
+                                </div>
+                                <div className="p-4 bg-white rounded-xl shadow-sm border border-slate-100">
+                                    <div className="text-3xl font-bold text-cyan-600 mb-1">2x</div>
+                                    <div className="text-sm text-slate-500">{t('airTrendsStat2')}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex-1 relative">
+                            <div className="bg-white rounded-3xl p-8 shadow-xl border border-blue-100 relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-[100px] -z-10"></div>
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <h4 className="font-bold text-slate-700">{t('airTrendsChartSchedule')}</h4>
+                                        <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">{t('airTrendsChartOnTime')}</span>
+                                    </div>
+                                    {[t('airTrendsChartClean'), t('airTrendsChartCheck'), t('airTrendsChartParts')].map((item, i) => (
+                                        <div key={i} className="flex items-center gap-4">
+                                            <div className="w-28 text-sm font-bold text-slate-600">{item}</div>
+                                            <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                                                <div className={`h-full rounded-full ${i === 0 ? 'bg-blue-600 w-[100%]' : i === 1 ? 'bg-blue-400 w-[80%]' : 'bg-blue-300 w-[30%]'}`}></div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                                    <p className="text-sm text-slate-500">{t('airTrendsCaption')}</p>
                                 </div>
                             </div>
                         </div>
@@ -221,8 +283,8 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
             <section id="challenges" className="py-24 px-6 bg-gradient-to-b from-white to-blue-50">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">ปัญหาที่ธุรกิจแอร์มักพบ</h2>
-                        <p className="text-lg text-slate-600 max-w-2xl mx-auto">จัดการงานซ่อม/ล้างให้เป็นระบบ ลูกค้าประทับใจ</p>
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">{t('airServiceChallengesTitle')}</h2>
+                        <p className="text-lg text-slate-600 max-w-2xl mx-auto">{t('airServiceChallengesDesc')}</p>
                     </div>
                     <div className="grid md:grid-cols-2 gap-8">
                         <div className="bg-white p-8 rounded-2xl border border-blue-100 shadow-sm">
@@ -231,8 +293,8 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
                                     <span className="text-2xl">😵‍💫</span>
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold mb-2 text-slate-900">จำไม่ได้ว่าลูกค้าคนไหนถึงรอบล้างแอร์</h3>
-                                    <p className="text-slate-600 leading-relaxed">ข้อมูลอยู่ในกระดาษ หรือ Excel ที่ไม่อัปเดต ทำให้เสียโอกาสในการขายบริการซ้ำ</p>
+                                    <h3 className="text-xl font-bold mb-2 text-slate-900">{t('airServiceChallenge1Title')}</h3>
+                                    <p className="text-slate-600 leading-relaxed">{t('airServiceChallenge1Desc')}</p>
                                 </div>
                             </div>
                         </div>
@@ -242,8 +304,8 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
                                     <span className="text-2xl">📅</span>
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold mb-2 text-slate-900">นัดหมายซ้อนทับ ช่างไปผิดที่</h3>
-                                    <p className="text-slate-600 leading-relaxed">สื่อสารผ่านไลน์กลุ่ม ข้อมูลตกหล่น ช่างไปผิดเวลานัด หรือรับงานซ้อนกันโดยไม่รู้ตัว</p>
+                                    <h3 className="text-xl font-bold mb-2 text-slate-900">{t('airServiceChallenge2Title')}</h3>
+                                    <p className="text-slate-600 leading-relaxed">{t('airServiceChallenge2Desc')}</p>
                                 </div>
                             </div>
                         </div>
@@ -253,8 +315,8 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
                                     <span className="text-2xl">❓</span>
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold mb-2 text-slate-900">ไม่รู้ประวัติการซ่อมเดิม</h3>
-                                    <p className="text-slate-600 leading-relaxed">ลูกค้าแจ้งว่าแอร์เสียตัวเดิม แต่จำไม่ได้ว่าเคยซ่อมอะไรไปบ้าง อาการเดิมหรือเปล่า</p>
+                                    <h3 className="text-xl font-bold mb-2 text-slate-900">{t('airServiceChallenge3Title')}</h3>
+                                    <p className="text-slate-600 leading-relaxed">{t('airServiceChallenge3Desc')}</p>
                                 </div>
                             </div>
                         </div>
@@ -264,8 +326,8 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
                                     <span className="text-2xl">📉</span>
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold mb-2 text-slate-900">รายได้ไม่แน่นอน</h3>
-                                    <p className="text-slate-600 leading-relaxed">รอลูกค้าโทรมาเรียกอย่างเดียว ไม่มีการรุกตลาดหาลูกค้าเก่า</p>
+                                    <h3 className="text-xl font-bold mb-2 text-slate-900">{t('airServiceChallenge4Title')}</h3>
+                                    <p className="text-slate-600 leading-relaxed">{t('airServiceChallenge4Desc')}</p>
                                 </div>
                             </div>
                         </div>
@@ -277,8 +339,8 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
             <section className="py-24 px-6 bg-white">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">SARN ช่วยจัดการงานบริการอย่างไร</h2>
-                        <p className="text-lg text-slate-600 max-w-2xl mx-auto">ระบบที่คิดมาเพื่อทีมงานบริการและงานช่างโดยเฉพาะ</p>
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">{t('airServiceSolutionTitle')}</h2>
+                        <p className="text-lg text-slate-600 max-w-2xl mx-auto">{t('airServiceSolutionDesc')}</p>
                     </div>
                     <div className="space-y-12">
                         <div className="flex flex-col md:flex-row items-center gap-8 bg-gradient-to-br from-blue-50 to-white p-8 rounded-3xl border border-blue-100">
@@ -286,10 +348,9 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
                                 <Wind className="w-8 h-8 text-white" />
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-2xl font-bold mb-3 text-slate-900">แจ้งเตือนล้างแอร์อัตโนมัติ</h3>
+                                <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('airServiceSolution1Title')}</h3>
                                 <p className="text-slate-600 text-lg leading-relaxed">
-                                    ระบบบันทึกวันที่ติดตั้งหรือล้างล่าสุด และ
-                                    <strong className="text-blue-600"> แจ้งเตือนลูกค้าอัตโนมัติเมื่อครบ 6 เดือน</strong> ทาง LINE/SMS เพิ่มยอดขายบริการซ้ำได้ทันที
+                                    {t('airServiceSolution1Desc')}
                                 </p>
                             </div>
                         </div>
@@ -299,10 +360,9 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
                                 <Wrench className="w-8 h-8 text-white" />
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-2xl font-bold mb-3 text-slate-900">ติดตามสถานะงานซ่อม Real-time</h3>
+                                <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('airServiceSolution2Title')}</h3>
                                 <p className="text-slate-600 text-lg leading-relaxed">
-                                    เปิด Job งานในระบบ มอบหมายช่าง ติดตามสถานะ (รอเข้าซ่อม, กำลังซ่อม, เสร็จสิ้น) ง่ายๆผ่านมือถือ
-                                    <strong className="text-cyan-600"> ลูกค้าเช็คสถานะได้เอง ลดการโทรตามงาน</strong>
+                                    {t('airServiceSolution2Desc')}
                                 </p>
                             </div>
                         </div>
@@ -312,10 +372,9 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
                                 <ClipboardList className="w-8 h-8 text-white" />
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-2xl font-bold mb-3 text-slate-900">ประวัติการซ่อมครบถ้วน</h3>
+                                <h3 className="text-2xl font-bold mb-3 text-slate-900">{t('airServiceSolution3Title')}</h3>
                                 <p className="text-slate-600 text-lg leading-relaxed">
-                                    ช่างสามารถดูประวัติย้อนหลังได้ว่าแอร์ตัวนี้เคยซ่อมอะไรไป เปลี่ยนอะไหล่ตัวไหน
-                                    <strong className="text-slate-600"> วิเคราะห์อาการเสียได้แม่นยำขึ้น ดูเป็นมืออาชีพ</strong>
+                                    {t('airServiceSolution3Desc')}
                                 </p>
                             </div>
                         </div>
@@ -327,27 +386,27 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
             <section id="use-cases" className="py-24 px-6 bg-gradient-to-b from-slate-50 to-white">
                 <div className="max-w-7xl mx-auto">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">ตัวอย่างการใช้งานจริง</h2>
-                        <p className="text-lg text-slate-600">ยกระดับงานบริการของคุณให้เหนือกว่าคู่แข่ง</p>
+                        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">{t('airServiceUseCasesTitle')}</h2>
+                        <p className="text-lg text-slate-600">{t('airServiceUseCasesDesc')}</p>
                     </div>
                     <div className="grid md:grid-cols-2 gap-8">
                         <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
                             <div className="bg-blue-50 rounded-xl p-4 mb-6">
-                                <h4 className="font-bold text-blue-900">สถานการณ์: ลูกค้าถามว่า "ล้างแอร์ครั้งล่าสุดเมื่อไหร่?"</h4>
+                                <h4 className="font-bold text-blue-900">{t('airServiceUseCase1Title')}</h4>
                             </div>
                             <div className="space-y-4">
                                 <div className="flex gap-3">
                                     <span className="text-red-500 font-bold">❌</span>
                                     <div>
-                                        <p className="font-semibold text-slate-900">แบบเก่า:</p>
-                                        <p className="text-slate-600">ต้องเดา หรือไปค้นใบเสร็จเล่มเก่า เสียเวลาหา ไม่แน่ใจข้อมูล</p>
+                                        <p className="font-semibold text-slate-900">{t('oldWay')}:</p>
+                                        <p className="text-slate-600">{t('airServiceUseCase1Old')}</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-3">
                                     <span className="text-green-500 font-bold">✅</span>
                                     <div>
-                                        <p className="font-semibold text-blue-600">ใช้ SARN:</p>
-                                        <p className="text-slate-600">พิมพ์ชื่อลูกค้า หรือเบอร์โทร เจอประวัติทันที พร้อมบอกวันครบกำหนดล้างรอบถัดไป</p>
+                                        <p className="font-semibold text-blue-600">{t('useSarn')}:</p>
+                                        <p className="text-slate-600">{t('airServiceUseCase1New')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -355,21 +414,21 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
 
                         <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
                             <div className="bg-cyan-50 rounded-xl p-4 mb-6">
-                                <h4 className="font-bold text-cyan-900">สถานการณ์: ช่างลาป่วยกะทันหัน แต่มีนัดลูกค้าไว้</h4>
+                                <h4 className="font-bold text-cyan-900">{t('airServiceUseCase2Title')}</h4>
                             </div>
                             <div className="space-y-4">
                                 <div className="flex gap-3">
                                     <span className="text-red-500 font-bold">❌</span>
                                     <div>
-                                        <p className="font-semibold text-slate-900">แบบเก่า:</p>
-                                        <p className="text-slate-600">วุ่นวาย โทรเลื่อนลูกค้า หรือหาช่างอื่นแทนมั่วไปหมด ข้อมูลไม่อัปเดต</p>
+                                        <p className="font-semibold text-slate-900">{t('oldWay')}:</p>
+                                        <p className="text-slate-600">{t('airServiceUseCase2Old')}</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-3">
                                     <span className="text-green-500 font-bold">✅</span>
                                     <div>
-                                        <p className="font-semibold text-cyan-600">ใช้ SARN:</p>
-                                        <p className="text-slate-600">ดูตารางงานรวม เลือกช่างคนอื่นที่ว่างในช่วงเวลานั้นแทนได้ทันที หรือส่ง SMS แจ้งเลื่อนนัดลูกค้าได้จากระบบ</p>
+                                        <p className="font-semibold text-cyan-600">{t('useSarn')}:</p>
+                                        <p className="text-slate-600">{t('airServiceUseCase2New')}</p>
                                     </div>
                                 </div>
                             </div>
@@ -387,13 +446,12 @@ export const AirServicePage: React.FC<AirServicePageProps> = ({
                     <p className="text-xl text-blue-100 max-w-2xl mx-auto">
                         {t('airServiceCtaDesc')}
                     </p>
-                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                        <Button size="lg" className="h-14 px-8 text-lg w-full sm:w-auto bg-white text-blue-600 hover:bg-blue-50" onClick={onRegisterClick}>
-                            {t('tryFree')}
-                            <ArrowRight className="w-5 h-5 ml-2" />
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
+                        <Button size="lg" className="h-16 px-8 text-xl w-full sm:w-auto bg-white text-blue-600 hover:bg-blue-50 rounded-2xl shadow-xl shadow-black/10 hover:shadow-black/20 transition-all hover:-translate-y-1 font-bold" onClick={onRegisterClick}>
+                            {t('startFreeTrial')} <ArrowRight className="w-5 h-5 ml-2" />
                         </Button>
-                        <Button variant="outline" size="lg" className="h-14 px-8 text-lg w-full sm:w-auto border-white text-white hover:bg-white/10" onClick={onLoginClick}>
-                            {t('login')}
+                        <Button size="lg" variant="outline" className="h-16 px-8 text-xl w-full sm:w-auto border-2 border-white text-white hover:bg-white/10 rounded-2xl transition-all font-bold">
+                            {t('viewDemo')}
                         </Button>
                     </div>
                 </div>

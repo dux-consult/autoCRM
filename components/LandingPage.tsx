@@ -1,8 +1,44 @@
 import React, { useState } from 'react';
 import { Button } from './ui';
-import { Menu, X, Check, ArrowRight, Database, Zap, MessageCircle, Users, BarChart, Lock, ChevronRight, Command, Sparkles } from 'lucide-react';
+import { Menu, X, Check, ArrowRight, Database, Zap, MessageCircle, Users, BarChart, Lock, ChevronRight, Command, Sparkles, Clock } from 'lucide-react';
 import { useLanguage } from '../src/contexts/LanguageContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
+// Simple count-up animation component
+const AnimatedCounter = ({ end, duration = 2000, suffix = '' }: { end: number, duration?: number, suffix?: string }) => {
+  const [count, setCount] = useState(0);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          let start = 0;
+          const increment = end / (duration / 16);
+          const timer = setInterval(() => {
+            start += increment;
+            if (start >= end) {
+              setCount(end);
+              clearInterval(timer);
+            } else {
+              setCount(Math.floor(start));
+            }
+          }, 16);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [end, duration]);
+
+  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
+};
+
 
 interface LandingPageProps {
   onLoginClick: () => void;
@@ -22,10 +58,33 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const [isSolutionsOpen, setIsSolutionsOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-slate-900">
+    <div className="min-h-screen bg-white font-sans text-slate-900 overflow-x-hidden">
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee 40s linear infinite;
+        }
+        .animate-marquee-reverse {
+          animation: marquee 40s linear infinite reverse;
+        }
+        @keyframes float-slow {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-20px); }
+        }
+        .animate-float-slow {
+          animation: float-slow 6s ease-in-out infinite;
+        }
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.5; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.05); }
+        }
+      `}</style>
       {/* Navbar */}
-      <nav className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-100">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-sm">
               <Command className="text-white w-6 h-6" />
@@ -36,8 +95,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </div>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
+          {/* Desktop Menu - True Centered */}
+          <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
             <a href="#features" className="text-sm font-medium text-slate-600 hover:text-primary transition-colors">{t('features')}</a>
 
             {/* Solutions Dropdown - Click-based with large click area */}
@@ -140,40 +199,56 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-20 pb-32 px-6">
-        <div className="max-w-4xl mx-auto text-center space-y-8 animate-in slide-in-from-bottom-8 duration-700 fade-in">
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-slate-900 leading-tight">
-            {t('heroTitle1')} <span className="text-primary">{t('heroTitle2')}</span><br />
+      <section className="relative pt-32 pb-40 px-6 overflow-hidden">
+        {/* Modern Background */}
+        <div className="absolute inset-0 bg-white">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+          <div className="absolute left-0 right-0 top-0 -z-10 m-auto h-[310px] w-[310px] rounded-full bg-primary/20 opacity-20 blur-[100px]"></div>
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-8 animate-in slide-in-from-bottom-8 duration-700 fade-in">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-50 border border-blue-100 shadow-sm">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            <span className="text-sm font-medium text-slate-600">ออกแบบมาเพื่อ SME ไทย 🇹🇭</span>
+          </div>
+
+          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900 leading-[1.1]">
+            {t('heroTitle1')} <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-600">{t('heroTitle2')}</span><br />
             {t('heroTitle3')}
           </h1>
-          <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
+
+          <p className="text-lg md:text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
             {t('heroDesc')}
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-            <Button size="lg" className="h-14 px-8 text-lg w-full sm:w-auto" onClick={onRegisterClick}>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
+            <Button size="lg" className="h-16 px-8 text-xl w-full sm:w-auto shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all hover:-translate-y-1 font-bold" onClick={onRegisterClick}>
               {t('tryFree')}
             </Button>
-            <Button variant="outline" size="lg" className="h-14 px-8 text-lg w-full sm:w-auto group">
+            <Button variant="outline" size="lg" className="h-16 px-8 text-xl w-full sm:w-auto hover:bg-slate-50 transition-all group font-bold">
               {t('watchVideo')} <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
 
           {/* Visual Placeholder */}
-          <div className="mt-16 relative mx-auto max-w-5xl rounded-2xl bg-slate-50 border border-slate-200 shadow-2xl overflow-hidden aspect-[16/9] flex items-center justify-center group">
-            <div className="absolute inset-0 bg-gradient-to-tr from-blue-50 to-white opacity-50"></div>
+          <div className="mt-20 relative mx-auto max-w-5xl rounded-2xl bg-white/50 border border-slate-200 shadow-2xl overflow-hidden aspect-[16/9] flex items-center justify-center group backdrop-blur-sm">
+            <div className="absolute inset-0 bg-gradient-to-tr from-blue-50/50 to-white/50 opacity-50"></div>
             {/* Abstract UI representation */}
             <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 p-12 w-full max-w-4xl opacity-80 group-hover:scale-105 transition-transform duration-700">
-              <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4">
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4 transform transition-transform hover:-translate-y-2 duration-300">
                 <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center"><Users className="text-primary" /></div>
                 <div className="h-2 w-24 bg-slate-100 rounded"></div>
                 <div className="h-2 w-32 bg-slate-100 rounded"></div>
               </div>
-              <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4 mt-12">
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4 mt-12 transform transition-transform hover:-translate-y-2 duration-300 delay-75">
                 <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"><Zap className="text-green-600" /></div>
                 <div className="h-2 w-24 bg-slate-100 rounded"></div>
                 <div className="h-2 w-32 bg-slate-100 rounded"></div>
               </div>
-              <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4">
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 flex flex-col gap-4 transform transition-transform hover:-translate-y-2 duration-300 delay-150">
                 <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center"><MessageCircle className="text-purple-600" /></div>
                 <div className="h-2 w-24 bg-slate-100 rounded"></div>
                 <div className="h-2 w-32 bg-slate-100 rounded"></div>
@@ -184,15 +259,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       </section>
 
       {/* Trust Badges */}
-      <section className="py-12 bg-white border-y border-slate-100">
+      <section className="py-10 bg-slate-50 border-y border-slate-200 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
           <p className="text-center text-sm text-slate-500 mb-8 uppercase tracking-wider font-semibold">ได้รับความไว้วางใจจาก SMEs ทั่วประเทศ</p>
-          <div className="flex flex-wrap justify-center items-center gap-12 opacity-60">
-            <div className="text-2xl font-bold text-slate-400">🏪 ร้านค้าปลีก</div>
-            <div className="text-2xl font-bold text-slate-400">🐾 ร้านสัตว์เลี้ยง</div>
-            <div className="text-2xl font-bold text-slate-400">❄️ บริการแอร์</div>
-            <div className="text-2xl font-bold text-slate-400">💇 ร้านเสริมสวย</div>
-            <div className="text-2xl font-bold text-slate-400">🔧 ศูนย์ซ่อม</div>
+          <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-70 grayscale hover:grayscale-0 transition-all duration-500">
+            <div className="flex items-center gap-2 text-xl font-bold text-slate-600"><span className="text-2xl">🏪</span> ร้านค้าปลีก</div>
+            <div className="flex items-center gap-2 text-xl font-bold text-slate-600"><span className="text-2xl">🐾</span> ร้านสัตว์เลี้ยง</div>
+            <div className="flex items-center gap-2 text-xl font-bold text-slate-600"><span className="text-2xl">❄️</span> บริการแอร์</div>
+            <div className="flex items-center gap-2 text-xl font-bold text-slate-600"><span className="text-2xl">💇</span> ร้านเสริมสวย</div>
+            <div className="flex items-center gap-2 text-xl font-bold text-slate-600"><span className="text-2xl">🔧</span> ศูนย์ซ่อม</div>
           </div>
         </div>
       </section>
@@ -240,54 +315,54 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20">
             {/* Feature Card 1 */}
-            <div className="bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl border border-blue-100 hover:shadow-xl transition-all group">
-              <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Users className="w-6 h-6 text-white" />
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 hover:-translate-y-1 group">
+              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-blue-100 transition-transform">
+                <Users className="w-6 h-6 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-slate-900">จัดการลูกค้า</h3>
               <p className="text-slate-600 leading-relaxed">บันทึกข้อมูลลูกค้าครบถ้วน วิเคราะห์กลุ่มลูกค้า (RFM) แบ่งเกรด A, B, C อัตโนมัติ</p>
             </div>
 
             {/* Feature Card 2 */}
-            <div className="bg-gradient-to-br from-green-50 to-white p-8 rounded-2xl border border-green-100 hover:shadow-xl transition-all group">
-              <div className="w-12 h-12 bg-green-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Zap className="w-6 h-6 text-white" />
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-green-200 transition-all duration-300 hover:-translate-y-1 group">
+              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-green-100 transition-transform">
+                <Zap className="w-6 h-6 text-green-600" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-slate-900">ระบบอัตโนมัติ</h3>
               <p className="text-slate-600 leading-relaxed">สร้าง Flow อัตโนมัติ แจ้งเตือนตามลูกค้า ส่งโปรโมชั่นวันเกิด ไม่พลาดทุกโอกาส</p>
             </div>
 
             {/* Feature Card 3 */}
-            <div className="bg-gradient-to-br from-purple-50 to-white p-8 rounded-2xl border border-purple-100 hover:shadow-xl transition-all group">
-              <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Sparkles className="w-6 h-6 text-white" />
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-purple-200 transition-all duration-300 hover:-translate-y-1 group">
+              <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-purple-100 transition-transform">
+                <Sparkles className="w-6 h-6 text-purple-600" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-slate-900">AI ผู้ช่วยการตลาด</h3>
               <p className="text-slate-600 leading-relaxed">AI เขียนข้อความการตลาดให้ ปรับแต่งตามข้อมูลและกลุ่มลูกค้าแต่ละคน</p>
             </div>
 
             {/* Feature Card 4 */}
-            <div className="bg-gradient-to-br from-orange-50 to-white p-8 rounded-2xl border border-orange-100 hover:shadow-xl transition-all group">
-              <div className="w-12 h-12 bg-orange-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <BarChart className="w-6 h-6 text-white" />
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-orange-200 transition-all duration-300 hover:-translate-y-1 group">
+              <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-orange-100 transition-transform">
+                <BarChart className="w-6 h-6 text-orange-600" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-slate-900">รายงานแบบเรียลไทม์</h3>
               <p className="text-slate-600 leading-relaxed">Dashboard สรุปยอดขาย กราฟวิเคราะห์ลูกค้า ติดตามธุรกิจได้ทุกที่ทุกเวลา</p>
             </div>
 
             {/* Feature Card 5 */}
-            <div className="bg-gradient-to-br from-pink-50 to-white p-8 rounded-2xl border border-pink-100 hover:shadow-xl transition-all group">
-              <div className="w-12 h-12 bg-pink-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <MessageCircle className="w-6 h-6 text-white" />
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-pink-200 transition-all duration-300 hover:-translate-y-1 group">
+              <div className="w-12 h-12 bg-pink-50 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-pink-100 transition-transform">
+                <MessageCircle className="w-6 h-6 text-pink-600" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-slate-900">LINE Integration</h3>
               <p className="text-slate-600 leading-relaxed">เชื่อมต่อ LINE OA ส่งข้อความ โปรโมชั่น แจ้งเตือนหาลูกค้าอัตโนมัติ</p>
             </div>
 
             {/* Feature Card 6 */}
-            <div className="bg-gradient-to-br from-cyan-50 to-white p-8 rounded-2xl border border-cyan-100 hover:shadow-xl transition-all group">
-              <div className="w-12 h-12 bg-cyan-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                <Database className="w-6 h-6 text-white" />
+            <div className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-cyan-200 transition-all duration-300 hover:-translate-y-1 group">
+              <div className="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 group-hover:bg-cyan-100 transition-transform">
+                <Database className="w-6 h-6 text-cyan-600" />
               </div>
               <h3 className="text-xl font-bold mb-3 text-slate-900">นำเข้าข้อมูลง่าย</h3>
               <p className="text-slate-600 leading-relaxed">อัปโหลดไฟล์ Excel รายชื่อลูกค้า ระบบจัดการและวิเคราะห์ให้อัตโนมัติ</p>
@@ -336,80 +411,225 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* Stats Section - Zoho Style */}
-      <section className="py-20 bg-slate-900 text-white">
+      {/* SME Impact Section */}
+      <section className="py-24 bg-gradient-to-b from-white to-blue-50/50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <div className="text-4xl md:text-5xl font-bold mb-2">500+</div>
-              <div className="text-slate-400 text-sm">SMEs ใช้งาน</div>
+          <div className="flex flex-col md:flex-row items-center gap-16">
+
+            {/* Left Content: Stats & Insights */}
+            <div className="flex-1 space-y-8 animate-in slide-in-from-left-8 duration-700 fade-in">
+              <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-100/50 text-blue-700 text-sm font-bold border border-blue-200">
+                🚀 SME Insights
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+                ทำไมธุรกิจยุคใหม่<br />
+                <span className="text-primary">ต้องมีระบบ CRM?</span>
+              </h2>
+              <p className="text-lg text-slate-600 leading-relaxed">
+                การแข่งขันในตลาด SME สูงขึ้นทุกวัน การบริหารจัดการลูกค้าด้วยวิธีเดิมๆ อาจไม่ทันกิน ข้อมูลสถิติชี้ชัดว่าเทคโนโลยีช่วยสร้างความได้เปรียบ
+              </p>
+
+              <div className="space-y-6 pt-4">
+                <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                  <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center shrink-0">
+                    <BarChart className="w-6 h-6 text-green-600" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-slate-900">+29%</div>
+                    <div className="text-slate-600 text-sm">ยอดขายเพิ่มขึ้นเมื่อใช้ CRM*</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-4 p-4 rounded-xl bg-white border border-slate-100 shadow-sm hover:shadow-md transition-all">
+                  <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+                    <Clock className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-slate-900">-10 ชม.</div>
+                    <div className="text-slate-600 text-sm">ลดเวลาทำงานเอกสารต่อสัปดาห์**</div>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-400 italic">
+                *อ้างอิงจาก Salesforce (Sales Trends Report)<br />
+                **ข้อมูลเฉลี่ยจากผู้ใช้งานจริงของ SARN Platform
+              </p>
             </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold mb-2">10K+</div>
-              <div className="text-slate-400 text-sm">ลูกค้าในระบบ</div>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold mb-2">99.9%</div>
-              <div className="text-slate-400 text-sm">Uptime</div>
-            </div>
-            <div>
-              <div className="text-4xl md:text-5xl font-bold mb-2">24/7</div>
-              <div className="text-slate-400 text-sm">Support</div>
+
+            {/* Right Content: Animated Visual Charts */}
+            <div className="flex-1 w-full animate-in slide-in-from-right-8 duration-700 fade-in delay-200">
+              <div className="relative bg-white rounded-3xl p-8 shadow-2xl shadow-blue-900/10 border border-slate-100">
+                {/* Header of Chart Panel */}
+                <div className="flex items-center justify-between mb-8 border-b border-slate-100 pb-4">
+                  <div className="font-bold text-slate-800">{t('landingChartPerformance')}</div>
+                  <div className="flex gap-2">
+                    <div className="flex items-center gap-1 text-xs text-slate-500"><div className="w-3 h-3 bg-slate-200 rounded-full"></div> {t('landingChartBefore')}</div>
+                    <div className="flex items-center gap-1 text-xs text-primary font-bold"><div className="w-3 h-3 bg-primary rounded-full"></div> {t('landingChartAfter')}</div>
+                  </div>
+                </div>
+
+                {/* Animated Bar Chart Rows */}
+                <div className="space-y-8">
+                  {/* Row 1: Customer Retention (Low to High) */}
+                  <div className="space-y-3 group">
+                    <div className="flex justify-between text-sm font-medium text-slate-700">
+                      <span>{t('landingChartRetention')}</span>
+                      <span className="text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity">{t('landingChartRetentionGrowth')}</span>
+                    </div>
+                    {/* Before */}
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      <div className="w-12 text-right">{t('landingChartBefore')}</div>
+                      <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-slate-300 w-[25%] rounded-full"></div>
+                      </div>
+                      <div className="w-12">25%</div>
+                    </div>
+                    {/* After */}
+                    <div className="flex items-center gap-3 text-xs text-primary font-bold">
+                      <div className="w-12 text-right">SARN</div>
+                      <div className="flex-1 h-3 bg-blue-50 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary w-[0%] animate-[growWidth_1.5s_ease-out_forwards_0.5s] rounded-full shadow-sm shadow-blue-200" style={{ width: '75%' }}></div>
+                      </div>
+                      <div className="w-12">75%</div>
+                    </div>
+                  </div>
+
+                  {/* Row 2: Response Speed */}
+                  <div className="space-y-3 group">
+                    <div className="flex justify-between text-sm font-medium text-slate-700">
+                      <span>{t('landingChartResponseSpeed')}</span>
+                      <span className="text-green-600 font-bold opacity-0 group-hover:opacity-100 transition-opacity">{t('landingChartSpeedGrowth')}</span>
+                    </div>
+                    {/* Before */}
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      <div className="w-12 text-right">{t('landingChartBefore')}</div>
+                      <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-slate-300 w-[20%] rounded-full"></div>
+                      </div>
+                      <div className="w-12">{t('landingChartSlow')}</div>
+                    </div>
+                    {/* After */}
+                    <div className="flex items-center gap-3 text-xs text-green-600 font-bold">
+                      <div className="w-12 text-right">SARN</div>
+                      <div className="flex-1 h-3 bg-green-50 rounded-full overflow-hidden">
+                        <div className="h-full bg-green-500 w-[0%] animate-[growWidth_1.5s_ease-out_forwards_0.7s] rounded-full shadow-sm shadow-green-200" style={{ width: '90%' }}></div>
+                      </div>
+                      <div className="w-12">{t('landingChartInstant')}</div>
+                    </div>
+                  </div>
+
+                  {/* Row 3: Human Error */}
+                  <div className="space-y-3 group">
+                    <div className="flex justify-between text-sm font-medium text-slate-700">
+                      <span>{t('landingChartError')}</span>
+                      <span className="text-orange-500 font-bold opacity-0 group-hover:opacity-100 transition-opacity">{t('landingChartErrorReduction')}</span>
+                    </div>
+                    {/* Before */}
+                    <div className="flex items-center gap-3 text-xs text-slate-500">
+                      <div className="w-12 text-right">{t('landingChartBefore')}</div>
+                      <div className="flex-1 h-3 bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-red-200 w-[80%] rounded-full"></div>
+                      </div>
+                      <div className="w-12">High</div>
+                    </div>
+                    {/* After */}
+                    <div className="flex items-center gap-3 text-xs text-orange-600 font-bold">
+                      <div className="w-12 text-right">SARN</div>
+                      <div className="flex-1 h-3 bg-orange-50 rounded-full overflow-hidden">
+                        <div className="h-full bg-orange-500 w-[0%] animate-[growWidth_1.5s_ease-out_forwards_0.9s] rounded-full shadow-sm shadow-orange-200" style={{ width: '5%' }}></div>
+                      </div>
+                      <div className="w-12">0%</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating Elements */}
+                <div className="absolute -right-8 -bottom-8 bg-white p-4 rounded-xl shadow-xl border border-slate-100 animate-bounce-slow hidden md:block">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <span className="text-xl">💰</span>
+                    </div>
+                    <div>
+                      <div className="text-xs text-slate-500">{t('landingRoiTitle')}</div>
+                      <div className="font-bold text-slate-900">{t('landingRoiValue')}</div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonials - Flowlu Style */}
-      <section className="py-24 bg-gradient-to-b from-slate-50 to-white">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">ลูกค้าพูดถึงเรา</h2>
-            <p className="text-lg text-slate-600">ไว้วางใจจากเจ้าของธุรกิจทั่วประเทศ</p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8">
-            {/* Testimonial 1 */}
-            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all">
-              <div className="flex items-center gap-1 mb-4">
-                {'⭐'.repeat(5)}
-              </div>
-              <p className="text-slate-700 leading-relaxed mb-6 italic">
-                "ใช้งานง่ายมาก ไม่ต้องเก่ง IT ก็ทำได้ ตอนนี้ติดตามลูกค้าได้ครบทุกคน ไม่มีหลุดแล้ว ยอดขายเพิ่มขึ้น 40%"
-              </p>
-              <div>
-                <div className="font-bold text-slate-900">คุณสมชาย ร.</div>
-                <div className="text-sm text-slate-500">เจ้าของร้านอะไหล่รถยนต์</div>
-              </div>
-            </div>
+      {/* Stats Section - Animated */}
+      <section className="py-20 bg-slate-900 text-white relative overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-[size:32px_32px] opacity-20"></div>
 
-            {/* Testimonial 2 */}
-            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all">
-              <div className="flex items-center gap-1 mb-4">
-                {'⭐'.repeat(5)}
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <div className="text-4xl md:text-5xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-br from-blue-400 to-cyan-300">
+                <AnimatedCounter end={500} suffix="+" />
               </div>
-              <p className="text-slate-700 leading-relaxed mb-6 italic">
-                "ระบบแจ้งเตือนอัตโนมัติช่วยได้เยอะ ไม่ต้องจำว่าลูกค้าคนไหนถึงเวลาซื้อซ้ำ ระบบแจ้งให้เอง"
-              </p>
-              <div>
-                <div className="font-bold text-slate-900">คุณนิดา ว.</div>
-                <div className="text-sm text-slate-500">เจ้าของร้านสัตว์เลี้ยง</div>
-              </div>
+              <div className="text-slate-400 text-sm font-medium">{t('landingStatsSmeUsers')}</div>
             </div>
-
-            {/* Testimonial 3 */}
-            <div className="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all">
-              <div className="flex items-center gap-1 mb-4">
-                {'⭐'.repeat(5)}
+            <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+              <div className="text-4xl md:text-5xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-br from-purple-400 to-pink-300">
+                <AnimatedCounter end={10000} suffix="+" />
               </div>
-              <p className="text-slate-700 leading-relaxed mb-6 italic">
-                "คุ้มค่ามาก ราคาไม่แพง แต่ได้ฟีเจอร์เยอะแยะ ทีมงานซัพพอร์ตดีด้วย ตอบเร็ว"
-              </p>
-              <div>
-                <div className="font-bold text-slate-900">คุณประเสริฐ ส.</div>
-                <div className="text-sm text-slate-500">ผู้จัดการบริษัทรับเหมาแอร์</div>
+              <div className="text-slate-400 text-sm font-medium">ลูกค้าในระบบ</div>
+            </div>
+            <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+              <div className="text-4xl md:text-5xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-br from-green-400 to-emerald-300">
+                <AnimatedCounter end={99} suffix=".9%" />
               </div>
+              <div className="text-slate-400 text-sm font-medium">Uptime</div>
+            </div>
+            <div className="p-6 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm hover:bg-white/10 transition-colors animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+              <div className="text-4xl md:text-5xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-br from-orange-400 to-yellow-300">
+                24/7
+              </div>
+              <div className="text-slate-400 text-sm font-medium">Support</div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Reviews - Marquee Style */}
+      <section className="py-24 bg-gradient-to-b from-slate-50 to-white overflow-hidden relative">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+
+        <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">{t('reviewsTitle')}</h2>
+          <p className="text-lg text-slate-600">{t('reviewsDesc')}</p>
+        </div>
+
+        {/* Marquee Container */}
+        <div className="flex gap-6 w-max animate-marquee hover:[animation-play-state:paused] py-4">
+          {[1, 2, 3, 4, 5, 1, 2, 3, 4, 5].map((item, index) => (
+            <div key={index} className="w-[350px] bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all cursor-pointer">
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold
+                  ${index % 3 === 0 ? 'bg-blue-500' : index % 3 === 1 ? 'bg-pink-500' : 'bg-green-500'}`}>
+                  {index % 3 === 0 ? 'S' : index % 3 === 1 ? 'P' : 'C'}
+                </div>
+                <div>
+                  <div className="font-bold text-sm text-slate-900">ร้านสมบูรณ์ การช่าง</div>
+                  <div className="flex text-yellow-400 text-xs">{'⭐'.repeat(5)}</div>
+                </div>
+                <div className="ml-auto">
+                  <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center"><Check className="w-3 h-3 text-blue-600" /></div>
+                </div>
+              </div>
+              <p className="text-slate-600 text-sm leading-relaxed border-l-2 border-slate-100 pl-3">
+                "{t('review1Text')}"
+              </p>
+              <div className="mt-4 text-xs text-slate-400 flex items-center gap-1">
+                Google Reviews <span className="w-1 h-1 bg-slate-400 rounded-full"></span> 2 วันที่แล้ว
+              </div>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -421,79 +641,108 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <p className="text-slate-500">{t('pricingDesc')}</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Starter */}
-            <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm flex flex-col">
-              <div className="mb-4">
-                <span className="font-bold text-lg">{t('starter')}</span>
+          <div className="max-w-4xl mx-auto">
+            {/* Main Pricing Unit (Unified Standard + Trial) */}
+            <div className="bg-white rounded-[2.5rem] border border-slate-200 shadow-2xl shadow-slate-200/50 overflow-hidden relative group hover:border-primary/30 transition-all duration-500">
+              <div className="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-blue-500 via-primary to-purple-500"></div>
+
+              <div className="p-8 md:p-12">
+                <div className="flex flex-col md:flex-row gap-12 items-start">
+
+                  {/* Left: Price & CTA */}
+                  <div className="flex-1 space-y-8 relative">
+                    <div>
+                      <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold mb-4 border border-blue-100">
+                        {t('recommendedForSme')}
+                      </div>
+                      <h3 className="text-3xl font-bold text-slate-900 mb-2">{t('smePro')}</h3>
+                      <p className="text-slate-500 leading-relaxed">
+                        {t('standardPlanDesc')}
+                      </p>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-6xl font-bold text-slate-900 tracking-tight">990</span>
+                        <div className="flex flex-col">
+                          <span className="text-xl font-bold text-slate-500">THB</span>
+                          <span className="text-sm text-slate-400">/ เดือน</span>
+                        </div>
+                      </div>
+
+                      <div className="p-5 bg-gradient-to-br from-blue-50 to-indigo-50/50 rounded-2xl border border-blue-100 relative overflow-hidden">
+                        <div className="relative z-10">
+                          <div className="font-bold text-blue-700 mb-1 flex items-center gap-2 text-lg">
+                            <Sparkles className="w-5 h-5 text-blue-600 fill-blue-600" /> {t('trial30Days')}
+                          </div>
+                          <p className="text-sm text-blue-600/80">
+                            {t('accessProFeatures')}<br />
+                            <span className="opacity-75 text-xs">{t('noCreditCardCancel')}</span>
+                          </p>
+                        </div>
+                        {/* Decor */}
+                        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-blue-200/50 rounded-full blur-2xl"></div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-4 pt-2">
+                      <Button size="lg" className="w-full text-xl h-16 rounded-2xl shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-all hover:-translate-y-1 font-bold" onClick={onRegisterClick}>
+                        {t('start30DaysTrial')} <ArrowRight className="w-5 h-5 ml-2" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Right: Features Grid */}
+                  <div className="flex-1 w-full bg-slate-50 rounded-3xl p-8 border border-slate-100">
+                    <div className="font-bold text-slate-900 mb-6 flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+                        <Check className="w-4 h-4 text-green-500" />
+                      </div>
+                      {t('everythingIncluded')}
+                    </div>
+                    <ul className="space-y-4">
+                      <li className="flex items-start gap-3 text-slate-700 group/item">
+                        <Check className="w-5 h-5 text-green-500 shrink-0 group-hover/item:scale-110 transition-transform" />
+                        <span>{t('unlimitedDb')}</span>
+                      </li>
+                      <li className="flex items-start gap-3 text-slate-700 group/item">
+                        <Check className="w-5 h-5 text-green-500 shrink-0 group-hover/item:scale-110 transition-transform" />
+                        <span>{t('lineOaConnect')}</span>
+                      </li>
+                      <li className="flex items-start gap-3 text-slate-700 group/item">
+                        <Check className="w-5 h-5 text-green-500 shrink-0 group-hover/item:scale-110 transition-transform" />
+                        <span>{t('fullAutomation')}</span>
+                      </li>
+                      <li className="flex items-start gap-3 text-slate-700 group/item">
+                        <Check className="w-5 h-5 text-green-500 shrink-0 group-hover/item:scale-110 transition-transform" />
+                        <span>{t('realTimeDashboard')}</span>
+                      </li>
+                      <li className="flex items-start gap-3 text-slate-700 group/item">
+                        <Check className="w-5 h-5 text-green-500 shrink-0 group-hover/item:scale-110 transition-transform" />
+                        <span>{t('dealsPipeline')}</span>
+                      </li>
+                      <li className="flex items-start gap-3 text-slate-700 group/item">
+                        <Check className="w-5 h-5 text-green-500 shrink-0 group-hover/item:scale-110 transition-transform" />
+                        <span>{t('exportReports')}</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                </div>
               </div>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">{t('free')}</span>
-                <span className="text-slate-500 ml-2">{t('lifetime')}</span>
-              </div>
-              <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-start gap-3 text-sm text-slate-600">
-                  <Check className="w-5 h-5 text-green-500 shrink-0" /> {t('starterPoint1')}
-                </li>
-                <li className="flex items-start gap-3 text-sm text-slate-600">
-                  <Check className="w-5 h-5 text-green-500 shrink-0" /> {t('starterPoint2')}
-                </li>
-                <li className="flex items-start gap-3 text-sm text-slate-600">
-                  <Check className="w-5 h-5 text-green-500 shrink-0" /> {t('starterPoint3')}
-                </li>
-              </ul>
-              <Button variant="outline" className="w-full" onClick={onRegisterClick}>{t('startFree')}</Button>
             </div>
 
-            {/* SME Pro */}
-            <div className="bg-white rounded-2xl p-8 border-2 border-primary shadow-xl relative flex flex-col transform md:-translate-y-4">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-primary text-white px-3 py-1 rounded-full text-xs font-bold">
-                {t('recommended')}
+            {/* Subtle Enterprise Link */}
+            <div className="mt-10 text-center animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+              <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all cursor-pointer group" onClick={() => window.location.href = 'mailto:sales@sarn.com'}>
+                <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
+                <span className="text-slate-600 text-sm">
+                  {t('enterpriseNeed')}
+                </span>
+                <span className="text-purple-600 font-bold text-sm group-hover:underline flex items-center gap-1">
+                  {t('contactSales')} <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                </span>
               </div>
-              <div className="mb-4">
-                <span className="font-bold text-lg text-primary">{t('smePro')}</span>
-              </div>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">{t('priceMonthly')}</span>
-                <span className="text-slate-500 ml-2">{t('perMonth')}</span>
-              </div>
-              <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-start gap-3 text-sm text-slate-600">
-                  <Check className="w-5 h-5 text-primary shrink-0" /> {t('smePoint1')}
-                </li>
-                <li className="flex items-start gap-3 text-sm text-slate-600">
-                  <Check className="w-5 h-5 text-primary shrink-0" /> {t('smePoint2')}
-                </li>
-                <li className="flex items-start gap-3 text-sm text-slate-600">
-                  <Check className="w-5 h-5 text-primary shrink-0" /> {t('smePoint3')}
-                </li>
-                <li className="flex items-start gap-3 text-sm text-slate-600">
-                  <Check className="w-5 h-5 text-primary shrink-0" /> {t('smePoint4')}
-                </li>
-              </ul>
-              <Button className="w-full" onClick={onRegisterClick}>{t('subscribeNow')}</Button>
-            </div>
-
-            {/* Enterprise */}
-            <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm flex flex-col">
-              <div className="mb-4">
-                <span className="font-bold text-lg">{t('enterprise')}</span>
-              </div>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">{t('contactUs')}</span>
-              </div>
-              <ul className="space-y-4 mb-8 flex-1">
-                <li className="flex items-start gap-3 text-sm text-slate-600">
-                  <Check className="w-5 h-5 text-green-500 shrink-0" /> {t('enterprisePoint1')}
-                </li>
-                <li className="flex items-start gap-3 text-sm text-slate-600">
-                  <Check className="w-5 h-5 text-green-500 shrink-0" /> {t('enterprisePoint2')}
-                </li>
-                <li className="flex items-start gap-3 text-sm text-slate-600">
-                  <Check className="w-5 h-5 text-green-500 shrink-0" /> {t('enterprisePoint3')}
-                </li>
-              </ul>
-              <Button variant="outline" className="w-full">{t('contactSales')}</Button>
             </div>
           </div>
         </div>
