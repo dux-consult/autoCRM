@@ -75,14 +75,14 @@ export const TimelinePreview: React.FC<TimelinePreviewProps> = ({
     return (
         <div className="relative">
             {/* Timeline line */}
-            <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gray-200 dark:bg-gray-700" />
+            <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gray-200" />
 
             <div className="space-y-4">
                 {nodes.map((node, index) => (
                     <div
-                        key={`${node.phase}-${node.month}`}
+                        key={`${node.phase}-${node.month}-${index}`}
                         className={`relative flex items-start gap-4 p-3 rounded-lg transition-colors
-                            ${onNodeClick ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800' : ''}`}
+                            ${onNodeClick ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                         onClick={() => onNodeClick?.(node)}
                     >
                         {/* Node icon */}
@@ -100,14 +100,14 @@ export const TimelinePreview: React.FC<TimelinePreviewProps> = ({
                                     {node.month === 0 ? 'วันซื้อ' : `เดือนที่ ${node.month}`}
                                 </span>
                             </div>
-                            <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                            <h4 className="font-medium text-gray-900">
                                 {node.action}
                             </h4>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                            <p className="text-sm text-gray-500">
                                 📅 {formatDate(node.month)}
                             </p>
                             {node.customMessage && (
-                                <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                                <p className="text-sm text-blue-600 mt-1">
                                     <Mail className="w-3 h-3 inline mr-1" />
                                     {node.customMessage}
                                 </p>
@@ -157,12 +157,30 @@ export function generateFlowPreviewNodes(
     if (config.retention.enabled) {
         let currentMonth = serviceIntervalMonths;
         while (currentMonth < lifecycleMonths) {
-            nodes.push({
-                month: currentMonth,
-                date: new Date().toISOString(),
-                phase: 'retention',
-                action: `เตือนบำรุงรักษา - รอบ ${Math.floor(currentMonth / serviceIntervalMonths)}`
-            });
+            // Check for multiple actions
+            // @ts-ignore - Dynamic check for actions property
+            const actions = config.retention.actions as any[];
+
+            if (actions && actions.length > 0) {
+                actions.forEach((action: any) => {
+                    nodes.push({
+                        month: currentMonth,
+                        date: new Date().toISOString(),
+                        phase: 'retention',
+                        action: action.task_name || 'งานบำรุงรักษา',
+                        customMessage: `${action.offset_type === 'before' ? 'ก่อน' : 'หลัง'} ${action.days_offset} วัน`
+                    });
+                });
+            } else {
+                // Legacy fallback
+                nodes.push({
+                    month: currentMonth,
+                    date: new Date().toISOString(),
+                    phase: 'retention',
+                    action: `เตือนบำรุงรักษา - รอบ ${Math.floor(currentMonth / serviceIntervalMonths)}`
+                });
+            }
+
             currentMonth += serviceIntervalMonths;
         }
     }

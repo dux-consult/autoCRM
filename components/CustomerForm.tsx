@@ -20,6 +20,8 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initialData, onSucce
         date_of_birth: initialData?.date_of_birth || '',
         gender: initialData?.gender || '',
         interests: initialData?.interests || [],
+        line_user_id: initialData?.line_user_id || '',
+        facebook_psid: initialData?.facebook_psid || '',
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -104,6 +106,38 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ initialData, onSucce
                         <option value="Other">{t('other')}</option>
                     </select>
                 </div>
+            </div>
+
+            {/* ช่องทางติดต่อ Automation */}
+            <div className="border-t pt-4 mt-4">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">ช่องทางติดต่อ (สำหรับ Automation)</h3>
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium flex items-center gap-2">
+                            <span className="text-green-600">●</span> LINE User ID
+                        </label>
+                        <Input
+                            value={formData.line_user_id}
+                            onChange={e => setFormData({ ...formData, line_user_id: e.target.value })}
+                            placeholder="U1234567890abcdef..."
+                            className="font-mono text-sm"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium flex items-center gap-2">
+                            <span className="text-blue-600">●</span> Facebook PSID
+                        </label>
+                        <Input
+                            value={formData.facebook_psid}
+                            onChange={e => setFormData({ ...formData, facebook_psid: e.target.value })}
+                            placeholder="1234567890123456"
+                            className="font-mono text-sm"
+                        />
+                    </div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                    * LINE User ID และ Facebook PSID จะได้มาอัตโนมัติเมื่อลูกค้าทักมาหาเพจ/บอท
+                </p>
             </div>
 
             {error && <div className="text-red-500 text-sm">{error}</div>}

@@ -93,37 +93,42 @@ export const transactionService = {
                 throw itemsError;
             }
 
+
             // 3. Auto-generate Tasks (Refill Reminders)
-            // We need to fetch product details to get usage_duration_days
-            // Optimization: We could have passed full product objects, but let's fetch to be safe/clean
-            const productIds = items.map(i => i.product_id);
-            const { data: products } = await supabase
-                .from('products')
-                .select('id, name, usage_duration_days')
-                .in('id', productIds);
+            // Wrapped in try-catch to not block main transaction flow
+            try {
+                const productIds = items.map(i => i.product_id);
+                const { data: products } = await supabase
+                    .from('products')
+                    .select('id, name, usage_duration_days')
+                    .in('id', productIds);
 
-            if (products) {
-                const tasksToCreate: any[] = [];
-                items.forEach(item => {
-                    const product = products.find(p => p.id === item.product_id);
-                    if (product && product.usage_duration_days) {
-                        const daysToAdd = product.usage_duration_days * (item.quantity || 1);
-                        const dueDate = new Date();
-                        dueDate.setDate(dueDate.getDate() + daysToAdd);
+                if (products) {
+                    const tasksToCreate: any[] = [];
+                    items.forEach(item => {
+                        const product = products.find(p => p.id === item.product_id);
+                        if (product && product.usage_duration_days) {
+                            const daysToAdd = product.usage_duration_days * (item.quantity || 1);
+                            const dueDate = new Date();
+                            dueDate.setDate(dueDate.getDate() + daysToAdd);
 
-                        tasksToCreate.push({
-                            title: `Refill Reminder: ${product.name}`,
-                            type: 'Call', // Default to Call or LINE
-                            status: 'Pending',
-                            due_date: dueDate.toISOString(),
-                            customer_id: transaction.customer_id
-                        });
+                            tasksToCreate.push({
+                                title: `Refill Reminder: ${product.name}`,
+                                type: 'Call', // Default to Call or LINE
+                                status: 'Pending',
+                                due_date: dueDate.toISOString(),
+                                customer_id: transaction.customer_id
+                            });
+                        }
+                    });
+
+                    if (tasksToCreate.length > 0) {
+                        await supabase.from('tasks').insert(tasksToCreate);
                     }
-                });
-
-                if (tasksToCreate.length > 0) {
-                    await supabase.from('tasks').insert(tasksToCreate);
                 }
+            } catch (taskError) {
+                console.error('Failed to create refill reminder tasks (non-blocking):', taskError);
+                // Don't throw - this is a secondary feature, transaction was already saved
             }
         }
 

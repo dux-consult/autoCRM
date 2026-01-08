@@ -44,6 +44,7 @@ export interface Customer {
   interests?: string[];
   avatar_url?: string;
   line_user_id?: string;
+  facebook_psid?: string;
   tier?: 'Standard' | 'Silver' | 'Gold' | 'Platinum';
   address?: CustomerAddress;
   referral_id?: string;
@@ -96,6 +97,14 @@ export interface Shop {
 // Product Lifecycle Types
 export type ProductType = 'tangible' | 'service';
 
+export interface ServiceFlowAction {
+  id: string; // Unique ID for UI handling
+  days_offset: number;
+  offset_type: 'before' | 'after'; // Relative to the target date
+  task_name: string;
+  message_template_id: string | null;
+}
+
 export interface OnboardingConfig {
   enabled: boolean;
   task_name: string;
@@ -104,8 +113,11 @@ export interface OnboardingConfig {
 
 export interface RetentionConfig {
   enabled: boolean;
-  reminder_days_before: number;
-  message_template_id: string | null;
+  // Legacy fields (optional)
+  reminder_days_before?: number;
+  message_template_id?: string | null;
+  // New multiple actions
+  actions: ServiceFlowAction[];
 }
 
 export interface MaturityConfig {
@@ -121,9 +133,16 @@ export interface ServiceFlowConfig {
 }
 
 export const DEFAULT_SERVICE_FLOW_CONFIG: ServiceFlowConfig = {
-  onboarding: { enabled: true, task_name: 'Install Product', message_template_id: null },
-  retention: { enabled: true, reminder_days_before: 7, message_template_id: null },
-  maturity: { enabled: true, task_name: 'Call for MA Renewal', message_template_id: null }
+  onboarding: { enabled: true, task_name: 'ติดตั้งสินค้า (Onboarding)', message_template_id: null },
+  retention: {
+    enabled: true,
+    reminder_days_before: 7,
+    message_template_id: null,
+    actions: [
+      { id: 'default_1', days_offset: 7, offset_type: 'before', task_name: 'เตือนเข้ารับบริการ (ก่อน 7 วัน)', message_template_id: null }
+    ]
+  },
+  maturity: { enabled: true, task_name: 'เสนอต่ออายุ (MA Renewal)', message_template_id: null }
 };
 
 export interface Product {

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { ServiceFlowConfig, MessageTemplate, DEFAULT_SERVICE_FLOW_CONFIG, FlowPreviewNode } from '../../types';
 import { messageTemplateService } from '../../services/messageTemplateService';
 import { TimelinePreview, generateFlowPreviewNodes } from './TimelinePreview';
-import { Switch, Button, Input, Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../ui';
-import { Zap, Settings, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
+import { Switch, Button, Input } from '../ui';
+import { Zap, Settings, ChevronDown, ChevronUp, Sparkles, Plus, Trash2 } from 'lucide-react';
+import { ServiceFlowAction } from '../../types';
 
 interface ServiceFlowBuilderProps {
     lifecycleMonths: number;
@@ -59,17 +60,43 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
         return templates.filter(t => t.type === type);
     };
 
+    // --- Retention Action Helpers ---
+    const addRetentionAction = () => {
+        const newAction: ServiceFlowAction = {
+            id: `action_${Date.now()}`,
+            days_offset: 7,
+            offset_type: 'before',
+            task_name: 'เตือนบริการ',
+            message_template_id: null
+        };
+        const currentActions = config.retention.actions || [];
+        updatePhaseConfig('retention', { actions: [...currentActions, newAction] });
+    };
+
+    const removeRetentionAction = (actionId: string) => {
+        const currentActions = config.retention.actions || [];
+        updatePhaseConfig('retention', { actions: currentActions.filter(a => a.id !== actionId) });
+    };
+
+    const updateRetentionAction = (actionId: string, updates: Partial<ServiceFlowAction>) => {
+        const currentActions = config.retention.actions || [];
+        const newActions = currentActions.map(a =>
+            a.id === actionId ? { ...a, ...updates } : a
+        );
+        updatePhaseConfig('retention', { actions: newActions });
+    };
+
     return (
         <div className="space-y-6">
             {/* Time Configuration */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-4">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4">
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <Settings className="w-5 h-5" />
                     ตั้งค่าระยะเวลา
                 </h3>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
                             ระยะเวลาดูแล/รับประกัน
                         </label>
                         <div className="flex items-center gap-2">
@@ -84,14 +111,14 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
                             รอบบริการ
                         </label>
                         <div className="flex items-center gap-2">
                             <select
                                 value={serviceIntervalMonths}
                                 onChange={(e) => onIntervalChange(parseInt(e.target.value))}
-                                className="px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600"
+                                className="px-3 py-2 border rounded-lg"
                             >
                                 <option value={1}>ทุก 1 เดือน</option>
                                 <option value={3}>ทุก 3 เดือน</option>
@@ -106,9 +133,9 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
             {/* Phase Configurations */}
             <div className="space-y-3">
                 {/* Phase 1: Onboarding */}
-                <div className="border rounded-xl overflow-hidden dark:border-gray-700">
+                <div className="border rounded-xl overflow-hidden">
                     <div
-                        className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 cursor-pointer"
+                        className="flex items-center justify-between p-4 bg-green-50 cursor-pointer"
                         onClick={() => togglePhase('onboarding')}
                     >
                         <div className="flex items-center gap-3">
@@ -116,7 +143,7 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
                                 1
                             </div>
                             <div>
-                                <h4 className="font-medium text-gray-900 dark:text-white">Onboarding</h4>
+                                <h4 className="font-medium text-gray-900">Onboarding</h4>
                                 <p className="text-xs text-gray-500">เริ่มต้นหลังการขาย (Day 0)</p>
                             </div>
                         </div>
@@ -130,7 +157,7 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
                         </div>
                     </div>
                     {expandedPhase === 'onboarding' && config.onboarding.enabled && (
-                        <div className="p-4 space-y-4 bg-white dark:bg-gray-800">
+                        <div className="p-4 space-y-4 bg-white">
                             <div>
                                 <label className="block text-sm font-medium mb-1">ชื่อ Task</label>
                                 <Input
@@ -144,7 +171,7 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
                                 <select
                                     value={config.onboarding.message_template_id || ''}
                                     onChange={(e) => updatePhaseConfig('onboarding', { message_template_id: e.target.value || null })}
-                                    className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                                    className="w-full px-3 py-2 border rounded-lg"
                                 >
                                     <option value="">-- เลือก Template --</option>
                                     {getTemplatesByType('onboarding').map(t => (
@@ -157,9 +184,9 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
                 </div>
 
                 {/* Phase 2: Retention */}
-                <div className="border rounded-xl overflow-hidden dark:border-gray-700">
+                <div className="border rounded-xl overflow-hidden">
                     <div
-                        className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 cursor-pointer"
+                        className="flex items-center justify-between p-4 bg-blue-50 cursor-pointer"
                         onClick={() => togglePhase('retention')}
                     >
                         <div className="flex items-center gap-3">
@@ -167,7 +194,7 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
                                 2
                             </div>
                             <div>
-                                <h4 className="font-medium text-gray-900 dark:text-white">Retention Loop</h4>
+                                <h4 className="font-medium text-gray-900">Retention Loop</h4>
                                 <p className="text-xs text-gray-500">เตือนบริการตามรอบ</p>
                             </div>
                         </div>
@@ -181,37 +208,102 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
                         </div>
                     </div>
                     {expandedPhase === 'retention' && config.retention.enabled && (
-                        <div className="p-4 space-y-4 bg-white dark:bg-gray-800">
-                            <div>
-                                <label className="block text-sm font-medium mb-1">เตือนล่วงหน้า (วัน)</label>
-                                <Input
-                                    type="number"
-                                    min={0}
-                                    value={config.retention.reminder_days_before}
-                                    onChange={(e) => updatePhaseConfig('retention', { reminder_days_before: parseInt(e.target.value) || 7 })}
-                                />
+                        <div className="p-4 space-y-4 bg-white">
+                            <div className="space-y-3">
+                                {(config.retention.actions || []).map((action, index) => (
+                                    <div key={action.id} className="p-4 border border-blue-100 rounded-xl bg-blue-50/30 relative group">
+                                        <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                                type="button"
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-8 w-8 p-0"
+                                                onClick={() => removeRetentionAction(action.id)}
+                                            >
+                                                <Trash2 className="w-4 h-4 text-red-500" />
+                                            </Button>
+                                        </div>
+
+                                        <h5 className="text-xs font-bold text-blue-600 mb-3 uppercase tracking-wider flex items-center gap-2">
+                                            <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center text-[10px]">
+                                                {index + 1}
+                                            </div>
+                                            Task ที่ {index + 1}
+                                        </h5>
+
+                                        <div className="space-y-3">
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <div>
+                                                    <label className="block text-xs font-medium mb-1">ระยะเวลา</label>
+                                                    <select
+                                                        className="w-full px-2 py-1.5 text-sm border rounded-lg mb-1"
+                                                        value={action.offset_type}
+                                                        onChange={(e) => updateRetentionAction(action.id, { offset_type: e.target.value as 'before' | 'after' })}
+                                                    >
+                                                        <option value="before">ก่อนถึงรอบ</option>
+                                                        <option value="after">หลังถึงรอบ</option>
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-medium mb-1">จำนวนวัน</label>
+                                                    <div className="flex items-center gap-2">
+                                                        <Input
+                                                            type="number"
+                                                            min={0}
+                                                            className="h-9"
+                                                            value={action.days_offset}
+                                                            onChange={(e) => updateRetentionAction(action.id, { days_offset: parseInt(e.target.value) || 0 })}
+                                                        />
+                                                        <span className="text-sm text-gray-500">วัน</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-medium mb-1">ชื่อ Task</label>
+                                                <Input
+                                                    className="h-9 bg-white"
+                                                    value={action.task_name}
+                                                    onChange={(e) => updateRetentionAction(action.id, { task_name: e.target.value })}
+                                                    placeholder="ชื่อกิจกรรม"
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-medium mb-1">Template ข้อความ</label>
+                                                <select
+                                                    value={action.message_template_id || ''}
+                                                    onChange={(e) => updateRetentionAction(action.id, { message_template_id: e.target.value || null })}
+                                                    className="w-full px-3 py-2 border rounded-lg text-sm bg-white"
+                                                >
+                                                    <option value="">-- ไม่ส่งข้อความ --</option>
+                                                    {getTemplatesByType('retention').map(t => (
+                                                        <option key={t.id} value={t.id}>{t.name}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-1">Template ข้อความ</label>
-                                <select
-                                    value={config.retention.message_template_id || ''}
-                                    onChange={(e) => updatePhaseConfig('retention', { message_template_id: e.target.value || null })}
-                                    className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
-                                >
-                                    <option value="">-- เลือก Template --</option>
-                                    {getTemplatesByType('retention').map(t => (
-                                        <option key={t.id} value={t.id}>{t.name}</option>
-                                    ))}
-                                </select>
-                            </div>
+
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="w-full border-dashed border-blue-300 text-blue-600 hover:bg-blue-50"
+                                onClick={addRetentionAction}
+                            >
+                                <Plus className="w-4 h-4 mr-2" />
+                                เพิ่ม Task การแจ้งเตือน
+                            </Button>
                         </div>
                     )}
                 </div>
 
                 {/* Phase 3: Maturity */}
-                <div className="border rounded-xl overflow-hidden dark:border-gray-700">
+                <div className="border rounded-xl overflow-hidden">
                     <div
-                        className="flex items-center justify-between p-4 bg-purple-50 dark:bg-purple-900/20 cursor-pointer"
+                        className="flex items-center justify-between p-4 bg-purple-50 cursor-pointer"
                         onClick={() => togglePhase('maturity')}
                     >
                         <div className="flex items-center gap-3">
@@ -219,7 +311,7 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
                                 3
                             </div>
                             <div>
-                                <h4 className="font-medium text-gray-900 dark:text-white">Maturity / Renewal</h4>
+                                <h4 className="font-medium text-gray-900">Maturity / Renewal</h4>
                                 <p className="text-xs text-gray-500">สิ้นสุดประกัน</p>
                             </div>
                         </div>
@@ -233,7 +325,7 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
                         </div>
                     </div>
                     {expandedPhase === 'maturity' && config.maturity.enabled && (
-                        <div className="p-4 space-y-4 bg-white dark:bg-gray-800">
+                        <div className="p-4 space-y-4 bg-white">
                             <div>
                                 <label className="block text-sm font-medium mb-1">ชื่อ Task</label>
                                 <Input
@@ -247,7 +339,7 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
                                 <select
                                     value={config.maturity.message_template_id || ''}
                                     onChange={(e) => updatePhaseConfig('maturity', { message_template_id: e.target.value || null })}
-                                    className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                                    className="w-full px-3 py-2 border rounded-lg"
                                 >
                                     <option value="">-- เลือก Template --</option>
                                     {getTemplatesByType('maturity').map(t => (
@@ -261,8 +353,8 @@ export const ServiceFlowBuilder: React.FC<ServiceFlowBuilderProps> = ({
             </div>
 
             {/* Timeline Preview */}
-            <div className="border rounded-xl p-4 dark:border-gray-700">
-                <h3 className="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+            <div className="border rounded-xl p-4">
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                     <Zap className="w-5 h-5 text-yellow-500" />
                     Preview Timeline
                 </h3>

@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Product, ProductType, ServiceFlowConfig, DEFAULT_SERVICE_FLOW_CONFIG } from '../../types';
 import { productService } from '../../services/productService';
 import { aiSuggestProductConfig } from '../../services/aiProductService';
 import { ServiceFlowBuilder } from './ServiceFlowBuilder';
 import { Button, Input, Switch } from '../ui';
 import { useLanguage } from '../../src/contexts/LanguageContext';
-import { Package, Sparkles, ImageIcon, Box, Wrench, Save, X, Loader2 } from 'lucide-react';
+import { Package, Sparkles, ImageIcon, Box, Wrench, Save, X, Loader2, Upload } from 'lucide-react';
 
 interface ProductFormV2Props {
     initialData?: Product;
@@ -37,9 +37,12 @@ export const ProductFormV2: React.FC<ProductFormV2Props> = ({ initialData, onSuc
 
     // UI State
     const [loading, setLoading] = useState(false);
+    const [uploading, setUploading] = useState(false);
     const [aiLoading, setAiLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
+
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleMagicSetup = async () => {
         if (!name.trim()) {
@@ -61,6 +64,36 @@ export const ProductFormV2: React.FC<ProductFormV2Props> = ({ initialData, onSuc
             setError('ไม่สามารถใช้ AI แนะนำได้');
         } finally {
             setAiLoading(false);
+        }
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Validation for image file
+        if (!file.type.startsWith('image/')) {
+            setError('กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น');
+            return;
+        }
+
+        // Limit size (e.g., 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            setError('ขนาดไฟล์ต้องไม่เกิน 2MB');
+            return;
+        }
+
+        setUploading(true);
+        setError(null);
+
+        try {
+            const url = await productService.uploadProductImage(file);
+            setImageUrl(url);
+        } catch (err: any) {
+            console.error('Upload error:', err);
+            setError('ไม่สามารถอัปโหลดรูปภาพได้ กรุณาลองใหม่ (ตรวจสอบว่ามี bucket "products" หรือไม่)');
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -106,49 +139,87 @@ export const ProductFormV2: React.FC<ProductFormV2Props> = ({ initialData, onSuc
         : null;
 
     return (
-        <form onSubmit={handleSubmit} className="h-full overflow-hidden">
-            <div className="flex h-full">
+        <form onSubmit={handleSubmit} className="flex flex-col h-full bg-white">
+            <div className="flex flex-1 overflow-hidden">
                 {/* Left Pane - Basic Info (30%) */}
-                <div className="w-[35%] border-r dark:border-gray-700 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
-                    <h2 className="text-lg font-semibold mb-6 flex items-center gap-2">
-                        <Package className="w-5 h-5" />
+                <div className="w-[35%] border-r overflow-y-auto p-6 bg-slate-50/50">
+                    <h2 className="text-lg font-semibold mb-6 flex items-center gap-2 text-slate-800 border-b border-slate-200 pb-3">
+                        <Package className="w-5 h-5 text-blue-600" />
                         ข้อมูลสินค้า
                     </h2>
 
                     {/* Image Preview */}
                     <div className="mb-6">
-                        <div className="aspect-square bg-gray-200 dark:bg-gray-800 rounded-xl flex items-center justify-center overflow-hidden">
+                        <div
+                            className="group relative aspect-square bg-white border-2 border-slate-200 rounded-2xl flex items-center justify-center overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
                             {imageUrl ? (
-                                <img src={imageUrl} alt={name} className="w-full h-full object-cover" />
+                                <>
+                                    <img src={imageUrl} alt={name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <div className="bg-white/90 p-2 rounded-full shadow-lg">
+                                            <Upload className="w-6 h-6 text-blue-600" />
+                                        </div>
+                                    </div>
+                                </>
                             ) : (
-                                <ImageIcon className="w-16 h-16 text-gray-400" />
+                                <div className="flex flex-col items-center gap-2 text-slate-400 group-hover:text-blue-500 transition-colors">
+                                    {uploading ? (
+                                        <Loader2 className="w-12 h-12 animate-spin text-blue-500" />
+                                    ) : (
+                                        <>
+                                            <ImageIcon className="w-12 h-12" />
+                                            <span className="text-xs font-bold">คลิกเพื่ออัปโหลด</span>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Loading Overlay */}
+                            {uploading && imageUrl && (
+                                <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                                    <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                                </div>
                             )}
                         </div>
-                        <Input
-                            className="mt-2"
-                            placeholder="URL รูปภาพ"
-                            value={imageUrl}
-                            onChange={(e) => setImageUrl(e.target.value)}
+
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileUpload}
+                            accept="image/*"
+                            className="hidden"
                         />
+
+                        <div className="mt-3 relative">
+                            <Input
+                                className="bg-white pl-9"
+                                placeholder="🔗 หรือวาง URL รูปภาพสินค้า"
+                                value={imageUrl}
+                                onChange={(e) => setImageUrl(e.target.value)}
+                            />
+                            <ImageIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        </div>
                     </div>
 
                     {/* Product Name with Magic Button */}
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">ชื่อสินค้า *</label>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">ชื่อสินค้า *</label>
                         <div className="flex gap-2">
                             <Input
                                 required
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
                                 placeholder="เช่น แอร์ Daikin Inverter 12000 BTU"
-                                className="flex-1"
+                                className="flex-1 bg-white"
                             />
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={handleMagicSetup}
                                 disabled={aiLoading}
-                                className="shrink-0"
+                                className="shrink-0 border-blue-200 hover:bg-blue-50 transition-colors"
                                 title="AI แนะนำการตั้งค่า"
                             >
                                 {aiLoading ? (
@@ -168,86 +239,89 @@ export const ProductFormV2: React.FC<ProductFormV2Props> = ({ initialData, onSuc
 
                     {/* SKU */}
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">รหัสสินค้า (SKU)</label>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">รหัสสินค้า (SKU)</label>
                         <Input
                             value={sku}
                             onChange={(e) => setSku(e.target.value)}
                             placeholder="เช่น AIR-DK-12K-INV"
+                            className="bg-white"
                         />
                     </div>
 
                     {/* Description */}
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1">รายละเอียด</label>
+                        <label className="block text-sm font-semibold text-slate-700 mb-1.5">รายละเอียด</label>
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="รายละเอียดสินค้า..."
-                            className="w-full px-3 py-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600 min-h-[80px]"
+                            placeholder="เขียนคำอธิบายสินค้า..."
+                            className="w-full px-4 py-2 border border-slate-200 rounded-xl min-h-[100px] bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all placeholder:text-slate-400"
                         />
                     </div>
 
                     {/* Price & Cost */}
-                    <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="grid grid-cols-2 gap-3 mb-2">
                         <div>
-                            <label className="block text-sm font-medium mb-1">ราคาขาย *</label>
+                            <label className="block text-sm font-semibold text-slate-700 mb-1.5">ราคาขาย *</label>
                             <Input
                                 type="number"
                                 required
                                 min={0}
                                 value={sellingPrice}
                                 onChange={(e) => setSellingPrice(parseFloat(e.target.value) || 0)}
+                                className="bg-white"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1">ราคาทุน</label>
+                            <label className="block text-sm font-semibold text-slate-700 mb-1.5">ราคาทุน</label>
                             <Input
                                 type="number"
                                 min={0}
                                 value={costPrice}
                                 onChange={(e) => setCostPrice(parseFloat(e.target.value) || 0)}
+                                className="bg-white"
                             />
                         </div>
                     </div>
                     {profitMargin && (
-                        <p className="text-xs text-gray-500 mb-4">
-                            กำไร: {(sellingPrice - costPrice).toLocaleString()} บาท ({profitMargin}%)
+                        <p className={`text-xs font-medium mb-4 ${parseFloat(profitMargin) > 0 ? 'text-green-600' : 'text-slate-500'}`}>
+                            🧮 กำไร: {(sellingPrice - costPrice).toLocaleString()} บาท ({profitMargin}%)
                         </p>
                     )}
 
                     {/* Product Type */}
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-2">ประเภทสินค้า</label>
-                        <div className="flex gap-2">
+                        <label className="block text-sm font-semibold text-slate-700 mb-2">ประเภทสินค้า</label>
+                        <div className="flex gap-3">
                             <button
                                 type="button"
                                 onClick={() => setProductType('tangible')}
-                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border-2 transition-colors ${productType === 'tangible'
-                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600'
-                                        : 'border-gray-200 dark:border-gray-700'
+                                className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-2xl border-2 transition-all ${productType === 'tangible'
+                                    ? 'border-blue-500 bg-blue-50 text-blue-700 shadow-sm shadow-blue-100'
+                                    : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
                                     }`}
                             >
-                                <Box className="w-5 h-5" />
-                                <span className="text-sm font-medium">สินค้า</span>
+                                <Box className={`w-6 h-6 ${productType === 'tangible' ? 'text-blue-600' : 'text-slate-300'}`} />
+                                <span className="text-xs font-bold uppercase tracking-wider">สินค้า</span>
                             </button>
                             <button
                                 type="button"
                                 onClick={() => setProductType('service')}
-                                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg border-2 transition-colors ${productType === 'service'
-                                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-600'
-                                        : 'border-gray-200 dark:border-gray-700'
+                                className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-2xl border-2 transition-all ${productType === 'service'
+                                    ? 'border-purple-500 bg-purple-50 text-purple-700 shadow-sm shadow-purple-100'
+                                    : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
                                     }`}
                             >
-                                <Wrench className="w-5 h-5" />
-                                <span className="text-sm font-medium">บริการ</span>
+                                <Wrench className={`w-6 h-6 ${productType === 'service' ? 'text-purple-600' : 'text-slate-300'}`} />
+                                <span className="text-xs font-bold uppercase tracking-wider">บริการ</span>
                             </button>
                         </div>
                     </div>
 
                     {/* Stock (only for tangible) */}
                     {productType === 'tangible' && (
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium mb-1">จำนวนในสต็อก</label>
+                        <div className="mb-4 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">จำนวนในสต็อก</label>
                             <div className="flex items-center gap-2">
                                 <Input
                                     type="number"
@@ -270,7 +344,7 @@ export const ProductFormV2: React.FC<ProductFormV2Props> = ({ initialData, onSuc
                 {/* Right Pane - Service Flow (70%) */}
                 <div className="w-[65%] overflow-y-auto p-6">
                     {/* Service Flow Toggle */}
-                    <div className="flex items-center justify-between mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl">
+                    <div className="flex items-center justify-between mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl">
                         <div>
                             <h2 className="text-lg font-semibold flex items-center gap-2">
                                 <Sparkles className="w-5 h-5 text-yellow-500" />
@@ -306,21 +380,26 @@ export const ProductFormV2: React.FC<ProductFormV2Props> = ({ initialData, onSuc
             </div>
 
             {/* Footer Actions */}
-            <div className="absolute bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t dark:border-gray-700 p-4">
-                {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
-                <div className="flex justify-end gap-3">
-                    <Button type="button" variant="outline" onClick={onCancel}>
-                        <X className="w-4 h-4 mr-1" />
-                        ยกเลิก
-                    </Button>
-                    <Button type="submit" disabled={loading}>
-                        {loading ? (
-                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                        ) : (
-                            <Save className="w-4 h-4 mr-1" />
-                        )}
-                        {initialData ? 'บันทึกการแก้ไข' : 'สร้างสินค้า'}
-                    </Button>
+            <div className="bg-white border-t border-slate-100 p-4 shadow-[0_-4px_10px_-5px_rgba(0,0,0,0.05)]">
+                {error && <p className="text-red-500 text-sm mb-3 font-medium text-center">{error}</p>}
+                <div className="flex justify-between items-center max-w-6xl mx-auto px-2">
+                    <div className="text-xs text-slate-400 italic">
+                        * ข้อมูลที่มีเครื่องหมายดอกจันจำเป็นต้องกรอก
+                    </div>
+                    <div className="flex gap-3">
+                        <Button type="button" variant="outline" onClick={onCancel} className="rounded-xl px-6">
+                            <X className="w-4 h-4 mr-2" />
+                            ยกเลิก
+                        </Button>
+                        <Button type="submit" disabled={loading} className="rounded-xl px-8 bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all">
+                            {loading ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            ) : (
+                                <Save className="w-4 h-4 mr-2" />
+                            )}
+                            {initialData ? 'บันทึกการแก้ไข' : 'ยืนยันสร้างสินค้า'}
+                        </Button>
+                    </div>
                 </div>
             </div>
         </form>

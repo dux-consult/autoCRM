@@ -153,14 +153,14 @@ export const TableRow: React.FC<{ children: React.ReactNode; className?: string 
   </tr>
 );
 
-export const TableHead: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <th className={`h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0 ${className}`}>
+export const TableHead: React.FC<React.ThHTMLAttributes<HTMLTableCellElement>> = ({ children, className = '', ...props }) => (
+  <th className={`h-12 px-4 text-left align-middle font-medium text-gray-500 [&:has([role=checkbox])]:pr-0 ${className}`} {...props}>
     {children}
   </th>
 );
 
-export const TableCell: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <td className={`p-4 align-middle [&:has([role=checkbox])]:pr-0 ${className}`}>
+export const TableCell: React.FC<React.TdHTMLAttributes<HTMLTableCellElement>> = ({ children, className = '', ...props }) => (
+  <td className={`p-4 align-middle [&:has([role=checkbox])]:pr-0 ${className}`} {...props}>
     {children}
   </td>
 );
@@ -180,7 +180,7 @@ export const Dialog: React.FC<{ open: boolean; onOpenChange: (open: boolean) => 
 };
 
 export const DialogContent: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className = '' }) => (
-  <div className={`relative z-50 w-full bg-white rounded-2xl shadow-xl animate-in fade-in zoom-in-95 duration-200 mx-4 ${className}`}>
+  <div className={`relative z-50 w-full bg-white rounded-2xl shadow-xl animate-in fade-in zoom-in-95 duration-200 mx-4 max-h-[95vh] overflow-y-auto ${className}`}>
     <div className="p-6">
       {children}
     </div>

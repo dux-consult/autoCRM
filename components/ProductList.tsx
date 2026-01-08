@@ -125,7 +125,7 @@ export const ProductList: React.FC = () => {
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">{t('productsTitle')}</h2>
+                    <h2 className="text-2xl font-bold tracking-tight text-gray-900">{t('productsTitle')}</h2>
                     <p className="text-sm text-gray-500 mt-1">{t('productsDesc')}</p>
                 </div>
                 <div className="flex gap-2">
@@ -148,7 +148,7 @@ export const ProductList: React.FC = () => {
             </div>
 
             <Card>
-                <CardHeader className="border-b border-gray-100 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50">
+                <CardHeader className="border-b border-gray-100 bg-white/50">
                     <div className="flex items-center gap-4">
                         <div className="relative flex-1 max-w-sm">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -205,12 +205,12 @@ export const ProductList: React.FC = () => {
                                                         className="w-10 h-10 rounded-lg object-cover"
                                                     />
                                                 ) : (
-                                                    <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                                                    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
                                                         <Package className="w-5 h-5 text-gray-400" />
                                                     </div>
                                                 )}
                                                 <div>
-                                                    <div className="font-medium text-gray-900 dark:text-white">
+                                                    <div className="font-medium text-gray-900">
                                                         {product.name}
                                                     </div>
                                                     {product.sku && (
@@ -221,8 +221,8 @@ export const ProductList: React.FC = () => {
                                         </TableCell>
                                         <TableCell>
                                             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${product.product_type === 'service'
-                                                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300'
-                                                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                                                ? 'bg-purple-100 text-purple-700'
+                                                : 'bg-blue-100 text-blue-700'
                                                 }`}>
                                                 {product.product_type === 'service' ? (
                                                     <><Wrench className="w-3 h-3" /> บริการ</>
@@ -239,7 +239,7 @@ export const ProductList: React.FC = () => {
                                         </TableCell>
                                         <TableCell>
                                             {product.has_service_flow ? (
-                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                                                     <Sparkles className="w-3 h-3" />
                                                     {product.lifecycle_months} เดือน
                                                 </span>
@@ -271,14 +271,14 @@ export const ProductList: React.FC = () => {
 
             {/* Full-screen modal for ProductFormV2 */}
             <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                <DialogContent className="max-w-6xl h-[90vh] p-0 overflow-hidden">
-                    <DialogHeader className="px-6 py-4 border-b dark:border-gray-700">
+                <DialogContent className="max-w-6xl h-[90vh] p-0 overflow-hidden flex flex-col">
+                    <DialogHeader className="px-6 py-4 border-b shrink-0">
                         <DialogTitle className="flex items-center gap-2">
-                            <Package className="w-5 h-5" />
+                            <Package className="w-5 h-5 text-blue-600" />
                             {editingProduct ? 'แก้ไขสินค้า' : 'เพิ่มสินค้าใหม่'}
                         </DialogTitle>
                     </DialogHeader>
-                    <div className="h-[calc(100%-8rem)] overflow-hidden relative">
+                    <div className="flex-1 overflow-hidden relative">
                         <ProductFormV2
                             initialData={editingProduct}
                             onSuccess={handleFormSuccess}

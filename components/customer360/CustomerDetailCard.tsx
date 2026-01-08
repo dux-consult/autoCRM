@@ -60,7 +60,7 @@ export const CustomerDetailCard: React.FC<CustomerDetailCardProps> = ({ customer
     };
 
     return (
-        <Card>
+        <Card className="overflow-hidden">
             <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-between">
                     <span className="flex items-center gap-2">
@@ -78,14 +78,14 @@ export const CustomerDetailCard: React.FC<CustomerDetailCardProps> = ({ customer
             </CardHeader>
             <CardContent className="space-y-3">
                 {/* Phone */}
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center gap-2">
                     <span className="text-sm text-gray-500">{t('phoneLabel') || 'เบอร์โทร'}</span>
                     {isEditing ? (
                         <input
                             type="tel"
                             value={formData.phone}
                             onChange={(e) => handleChange('phone', e.target.value)}
-                            className="text-right px-2 py-1 border rounded w-36 text-sm"
+                            className="text-right px-2 py-1 border rounded w-32 min-w-0 text-sm"
                         />
                     ) : (
                         <span className="font-medium">{customer.phone || '-'}</span>
@@ -93,7 +93,7 @@ export const CustomerDetailCard: React.FC<CustomerDetailCardProps> = ({ customer
                 </div>
 
                 {/* Birthday */}
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center gap-2">
                     <span className="text-sm text-gray-500">{t('birthday') || 'วันเกิด'}</span>
                     {isEditing ? (
                         <input
@@ -108,14 +108,14 @@ export const CustomerDetailCard: React.FC<CustomerDetailCardProps> = ({ customer
                 </div>
 
                 {/* Tax ID */}
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center gap-2">
                     <span className="text-sm text-gray-500">{t('taxId') || 'เลขประจำตัวผู้เสียภาษี'}</span>
                     {isEditing ? (
                         <input
                             type="text"
                             value={formData.tax_id}
                             onChange={(e) => handleChange('tax_id', e.target.value)}
-                            className="text-right px-2 py-1 border rounded w-36 text-sm"
+                            className="text-right px-2 py-1 border rounded w-32 min-w-0 text-sm"
                             placeholder="xxxxxxxxxxxxx"
                         />
                     ) : (

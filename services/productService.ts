@@ -53,5 +53,28 @@ export const productService = {
             .eq('id', id);
 
         if (error) throw error;
+    },
+
+    async uploadProductImage(file: File): Promise<string> {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `product_${Date.now()}_${Math.random().toString(36).slice(2)}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('products')
+            .upload(fileName, file, {
+                cacheControl: '3600',
+                upsert: false
+            });
+
+        if (uploadError) {
+            console.error('Product image upload error:', uploadError);
+            throw uploadError;
+        }
+
+        const { data } = supabase.storage
+            .from('products')
+            .getPublicUrl(fileName);
+
+        return data.publicUrl;
     }
 };
